@@ -36,40 +36,36 @@ function Node({ node, style, dragHandle }: NodeRendererProps<DataType>) {
     const openIcon = node.isOpen ? "tabler:folder-open" : "tabler:folder";
 
     return (
-        <div
-            style={{
-                ...style,
-                paddingLeft: node.level * (16 + 8) + 8,
-                paddingRight: 8,
-            }}
-            ref={dragHandle}
-            className="flex flex-row items-center gap-x-2 text-sm font-semibold py-1 h-8 rounded text-gray-200 bg-dark-300"
-            onClick={(e) => {
-                e.stopPropagation();
-                node.toggle();
-            }}
-            onKeyDown={(e) => {
-                e.stopPropagation();
-                if (e.key === "Enter") {
+        <div style={style} ref={dragHandle} className="relative">
+            <div
+                className="flex flex-row items-center gap-x-2 px-2 text-sm font-semibold py-1 h-8 rounded text-gray-200 bg-dark-300 hover:bg-dark-200 duration-200 ring-1 ring-white/10"
+                onClick={(e) => {
+                    e.stopPropagation();
                     node.toggle();
-                }
-            }}
-        >
-            {node.isLeaf ? null : (
+                }}
+                onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (e.key === "Enter") {
+                        node.toggle();
+                    }
+                }}
+            >
+                {node.isLeaf ? null : (
+                    <Icon
+                        icon={"tabler:chevron-right"}
+                        className={`size-4 ${node.isOpen ? "rotate-90" : ""}`}
+                        width="none"
+                        aria-hidden={true}
+                    />
+                )}
                 <Icon
-                    icon={"tabler:chevron-right"}
-                    className={`size-4 ${node.isOpen ? "rotate-90" : ""}`}
+                    icon={node.isLeaf ? "tabler:typography" : openIcon}
+                    className="size-4"
                     width={"none"}
                     aria-hidden={true}
                 />
-            )}
-            <Icon
-                icon={node.isLeaf ? "tabler:leaf" : openIcon}
-                className="size-4"
-                width={"none"}
-                aria-hidden={true}
-            />
-            <span>{node.data.name}</span>
+                <span>{node.data.name}</span>
+            </div>
         </div>
     );
 }
@@ -93,6 +89,7 @@ export function TreeDemo({
             width={width}
             padding={8}
             rowClassName="px-1"
+            className="[&_[role='treeitem']]:[transition:_top_0.2s_ease-in] [&_[role='treeitem']]:animate-fade-in"
         >
             {Node}
         </Tree>
