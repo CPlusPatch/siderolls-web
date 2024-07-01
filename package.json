@@ -1,8 +1,8 @@
 {
-    "name": "wxt-starter",
-    "description": "manifest.json description",
+    "name": "lists-project",
+    "description": "List project testing",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.0.1",
     "type": "module",
     "scripts": {
         "dev": "wxt",
@@ -16,11 +16,25 @@
         "lint": "bunx @biomejs/biome check ."
     },
     "dependencies": {
+        "@hookform/resolvers": "^3.6.0",
+        "@radix-ui/react-aspect-ratio": "^1.1.0",
+        "@radix-ui/react-hover-card": "^1.1.1",
+        "@radix-ui/react-label": "^2.1.0",
+        "@radix-ui/react-popover": "^1.1.1",
+        "@radix-ui/react-slot": "^1.1.0",
         "@uidotdev/usehooks": "^2.4.1",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.1.1",
+        "lucide-react": "^0.399.0",
+        "nanoid": "^5.0.7",
         "react": "19.0.0-rc-58af67a8f8-20240628",
         "react-arborist": "^3.4.0",
         "react-dom": "19.0.0-rc-58af67a8f8-20240628",
-        "use-resize-observer": "^9.1.0"
+        "react-hook-form": "^7.52.0",
+        "tailwind-merge": "^2.3.0",
+        "tailwindcss-animate": "^1.0.7",
+        "use-resize-observer": "^9.1.0",
+        "zod": "^3.23.8"
     },
     "devDependencies": {
         "@biomejs/biome": "^1.8.3",
@@ -40,5 +54,10 @@
         "@types/react": "npm:types-react@rc",
         "@types/react-dom": "npm:types-react-dom@rc"
     },
-    "trustedDependencies": ["@biomejs/biome", "spawn-sync"]
+    "trustedDependencies": [
+        "@biomejs/biome",
+        "dtrace-provider",
+        "esbuild",
+        "spawn-sync"
+    ]
 }

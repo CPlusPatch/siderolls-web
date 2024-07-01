@@ -6,5 +6,6 @@ export default defineConfig({
     manifest: {
         name: "List Project Test",
         description: "List Project Test",
+        permissions: ["storage"],
     },
 });
