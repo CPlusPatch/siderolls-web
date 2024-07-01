@@ -1,0 +1,41 @@
+{
+    "name": "wxt-starter",
+    "description": "manifest.json description",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "wxt",
+        "dev:firefox": "wxt -b firefox",
+        "build": "wxt build",
+        "build:firefox": "wxt build -b firefox",
+        "zip": "wxt zip",
+        "zip:firefox": "wxt zip -b firefox",
+        "compile": "tsc --noEmit",
+        "postinstall": "wxt prepare",
+        "lint": "bunx @biomejs/biome check ."
+    },
+    "dependencies": {
+        "@uidotdev/usehooks": "^2.4.1",
+        "react": "19.0.0-rc-58af67a8f8-20240628",
+        "react-arborist": "^3.4.0",
+        "react-dom": "19.0.0-rc-58af67a8f8-20240628"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^1.8.3",
+        "@iconify-icon/react": "^2.1.0",
+        "@types/react": "npm:types-react@rc",
+        "@types/react-dom": "npm:types-react-dom@rc",
+        "@wxt-dev/module-react": "^1.0.0",
+        "autoprefixer": "^10.4.19",
+        "postcss": "^8.4.39",
+        "tailwindcss": "^3.4.4",
+        "typescript": "^5.5.2",
+        "wxt": "^0.18.10"
+    },
+    "overrides": {
+        "@types/react": "npm:types-react@rc",
+        "@types/react-dom": "npm:types-react-dom@rc"
+    },
+    "trustedDependencies": ["@biomejs/biome", "spawn-sync"]
+}
