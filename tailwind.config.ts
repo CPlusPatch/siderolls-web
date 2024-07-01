@@ -1,3 +1,5 @@
+import forms from "@tailwindcss/forms";
+import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 
 const themeVariables = (color: string) => ({
@@ -27,5 +29,5 @@ export default (<Config>{
             },
         },
     },
-    plugins: [],
+    plugins: [forms, typography],
 });

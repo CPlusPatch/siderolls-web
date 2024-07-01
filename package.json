@@ -19,11 +19,14 @@
         "@uidotdev/usehooks": "^2.4.1",
         "react": "19.0.0-rc-58af67a8f8-20240628",
         "react-arborist": "^3.4.0",
-        "react-dom": "19.0.0-rc-58af67a8f8-20240628"
+        "react-dom": "19.0.0-rc-58af67a8f8-20240628",
+        "use-resize-observer": "^9.1.0"
     },
     "devDependencies": {
         "@biomejs/biome": "^1.8.3",
         "@iconify-icon/react": "^2.1.0",
+        "@tailwindcss/forms": "^0.5.7",
+        "@tailwindcss/typography": "^0.5.13",
         "@types/react": "npm:types-react@rc",
         "@types/react-dom": "npm:types-react-dom@rc",
         "@wxt-dev/module-react": "^1.0.0",

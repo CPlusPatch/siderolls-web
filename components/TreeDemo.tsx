@@ -1,6 +1,7 @@
 import { Icon } from "@iconify-icon/react";
-import { type RefObject, useEffect, useState } from "react";
+import { type RefObject, useState } from "react";
 import { type NodeRendererProps, Tree } from "react-arborist";
+import useResizeObserver from "use-resize-observer";
 
 type DataType = {
     id: string;
@@ -79,11 +80,9 @@ export function TreeDemo({
     const [treeData] = useState(data);
 
     // Get reactive height of the container
-    const [height, setHeight] = useState<number | undefined>(undefined);
-
-    useEffect(() => {
-        setHeight(containerRef.current?.clientHeight);
-    }, [containerRef]);
+    const { width, height } = useResizeObserver({
+        ref: containerRef as RefObject<HTMLDivElement>,
+    });
 
     return (
         <Tree<DataType>
@@ -91,7 +90,7 @@ export function TreeDemo({
             openByDefault={true}
             rowHeight={40}
             height={height}
-            width={"100%"}
+            width={width}
             padding={8}
             rowClassName="px-1"
         >

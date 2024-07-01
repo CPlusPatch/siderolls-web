@@ -6,9 +6,16 @@ function App() {
 
     return (
         <>
-            <main className="p-4" ref={mainRef}>
-                <TreeDemo containerRef={mainRef} />
-            </main>
+            <div className="p-4 flex flex-col gap-y-2 w-full h-full">
+                <header>
+                    <h1 className="text-2xl font-bold text-gray-200 leading-tight text-center">
+                        Tree Demo
+                    </h1>
+                </header>
+                <main className="grow" ref={mainRef}>
+                    <TreeDemo containerRef={mainRef} />
+                </main>
+            </div>
         </>
     );
 }
