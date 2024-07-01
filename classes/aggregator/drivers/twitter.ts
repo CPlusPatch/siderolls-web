@@ -19,7 +19,7 @@ export class TwitterDriver implements ContentDriver<TwitterData> {
         this.username = config.username;
     }
 
-    async fetchContent(): Promise<Content[]> {
+    async fetchContent(): Promise<Content<TwitterData>[]> {
         // TODO: Implement Twitter API call here
         const mockTweets: TwitterData[] = [];
         return mockTweets.map((tweet) => this.parseContent(tweet));
@@ -31,6 +31,7 @@ export class TwitterDriver implements ContentDriver<TwitterData> {
             type: "social",
             source: this.name,
             parentId: null,
+            title: rawData.text,
             timestamp: new Date(rawData.created_at).getTime(),
             data: {
                 tweetId: rawData.tweetId,

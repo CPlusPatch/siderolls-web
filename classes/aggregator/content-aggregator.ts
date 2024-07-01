@@ -12,25 +12,23 @@ import { UserMediaDriver } from "./drivers/user-media";
 /**
  * Represents a piece of content from any source
  */
-
-// biome-ignore lint/suspicious/noExplicitAny: Default value
-export interface Content<DataType = Record<string, any>> {
+export interface Content<DataType = Record<string, unknown>> {
     id: string;
     type: "link" | "media" | "text" | "social" | "folder";
     parentId: string | null;
     source: string;
     timestamp: number;
+    title: string;
     data: DataType;
 }
 
 /**
  * Interface for content provider drivers
  */
-// biome-ignore lint/suspicious/noExplicitAny: Default value
-export interface ContentDriver<DataType = Record<string, any>> {
+export interface ContentDriver<DataType = Record<string, unknown>> {
     name: string;
-    fetchContent(): Promise<Content[]>;
-    parseContent(rawData: DataType): Content;
+    fetchContent(): Promise<Content<DataType>[]>;
+    parseContent(rawData: unknown): Content<DataType>;
 }
 
 /**
@@ -84,6 +82,7 @@ export class ContentAggregator {
     /**
      * Create a new folder in the WebExtension storage
      * @param name - The name of the new folder
+     * @param parentId - The ID of the parent folder, or null for root
      */
     async createFolder(
         name: string,
@@ -95,14 +94,18 @@ export class ContentAggregator {
             source: "local",
             parentId,
             timestamp: Date.now(),
-            data: {
-                name,
-            },
+            title: name,
+            data: {},
         };
         await this.storeContent(folder);
         return folder;
     }
 
+    /**
+     * Move content to a new parent folder
+     * @param contentId - The ID of the content to move
+     * @param newParentId - The ID of the new parent folder, or null for root
+     */
     async moveContent(
         contentId: string,
         newParentId: string | null,

@@ -9,7 +9,7 @@ export type UserMediaData = { file: File; title: string };
 export class UserMediaDriver implements ContentDriver<UserMediaData> {
     name = "UserMedia";
 
-    fetchContent(): Promise<Content[]> {
+    fetchContent(): Promise<Content<UserMediaData>[]> {
         // This method won't be used for user-provided content
         return Promise.resolve([]);
     }
@@ -21,6 +21,7 @@ export class UserMediaDriver implements ContentDriver<UserMediaData> {
             source: this.name,
             parentId: null,
             timestamp: Date.now(),
+            title: rawData.title || rawData.file.name,
             data: {
                 file: rawData.file,
                 title: rawData.title || rawData.file.name,

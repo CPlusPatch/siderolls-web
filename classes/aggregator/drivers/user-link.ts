@@ -13,7 +13,7 @@ export type UserLinkData = { url: string; title: string };
 export class UserLinkDriver implements ContentDriver<UserLinkData> {
     name = "UserLink";
 
-    fetchContent(): Promise<Content[]> {
+    fetchContent(): Promise<Content<UserLinkData>[]> {
         // This method won't be used for user-provided content
         return Promise.resolve([]);
     }
@@ -25,6 +25,7 @@ export class UserLinkDriver implements ContentDriver<UserLinkData> {
             source: this.name,
             parentId: null,
             timestamp: Date.now(),
+            title: rawData.title || rawData.url,
             data: {
                 url: rawData.url,
                 title: rawData.title || rawData.url,

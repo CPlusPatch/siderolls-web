@@ -18,7 +18,7 @@ export class RSSDriver implements ContentDriver<RSSData> {
         this.feedUrl = config.feedUrl;
     }
 
-    async fetchContent(): Promise<Content[]> {
+    async fetchContent(): Promise<Content<RSSData>[]> {
         // TODO: Fetch and parse RSS feed
         const parsedItems: RSSData[] = [];
         return parsedItems.map((item) => this.parseContent(item));
@@ -31,6 +31,7 @@ export class RSSDriver implements ContentDriver<RSSData> {
             source: this.name,
             parentId: null,
             timestamp: Date.now(),
+            title: rawData.title,
             data: {
                 title: rawData.title,
                 link: rawData.link,

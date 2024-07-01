@@ -1,18 +1,19 @@
-/**
- * React component for displaying the content tree
- */
 import {
     type Content,
     type ContentAggregator,
     useContent,
 } from "@/classes/aggregator/content-aggregator";
-import type { UserLinkData } from "@/classes/aggregator/drivers/user-link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify-icon/react";
 import { nanoid } from "nanoid";
@@ -39,7 +40,6 @@ interface TreeNode {
     id: string;
     name: string;
     content: Content;
-    // If it's a folder, it will have children
     children?: TreeNode[];
 }
 
@@ -54,7 +54,6 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
     const tree = useMemo(() => new SimpleTree<TreeNode>(treeData), [treeData]);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
-    // Get reactive height of the container
     const { width, height } = useResizeObserver({
         ref: containerRef as RefObject<HTMLDivElement>,
     });
@@ -66,16 +65,15 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
 
     const organizeContentIntoTree = (
         content: Content[],
-        isFirst = true,
+        isRoot = true,
     ): TreeNode[] => {
-        const mapped = content
-            .filter((c) =>
-                isFirst
-                    ? c.parentId === tree.root.id || c.parentId === null
-                    : Boolean,
-            )
-            .map((item) => {
-                const children =
+        return content
+            .filter((c) => (isRoot ? c.parentId === null : true))
+            .map((item) => ({
+                id: item.id,
+                name: item.title,
+                content: item,
+                children:
                     item.type === "folder"
                         ? organizeContentIntoTree(
                               content.filter(
@@ -83,24 +81,11 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
                               ),
                               false,
                           )
-                        : undefined;
-
-                return {
-                    id: item.id,
-                    name: item.data.title || item.data.text || "Untitled",
-                    content: item,
-                    children,
-                };
-            });
-
-        return mapped;
+                        : undefined,
+            }));
     };
 
-    const onMove: MoveHandler<TreeNode> = async (args: {
-        dragIds: string[];
-        parentId: null | string;
-        index: number;
-    }) => {
+    const onMove: MoveHandler<TreeNode> = async (args) => {
         for (const id of args.dragIds) {
             tree.move({ id, parentId: args.parentId, index: args.index });
             await aggregator.moveContent(id, args.parentId ?? null);
@@ -125,7 +110,6 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
     const onDelete: DeleteHandler<TreeNode> = ({ ids, nodes }) => {
         for (const id of ids) {
             tree.drop({ id });
-            // Get content ID of node
             const contentId = nodes.find((node) => node.id === id)?.data.content
                 ?.id;
             contentId && aggregator.removeContent(contentId);
@@ -134,7 +118,7 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
     };
 
     const createNewFolder = async () => {
-        await aggregator.createFolder("New folder", tree.root.id);
+        await aggregator.createFolder("New folder", null);
     };
 
     return (
@@ -177,24 +161,25 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
 
 function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
     const openIcon = node.isOpen ? "tabler:folder-open" : "tabler:folder";
-
-    const isFolder = !!node.data.children;
+    const isFolder = node.data.content.type === "folder";
     const isEmptyFolder = isFolder && !node.data.children?.length;
 
-    // If empty, always keep the folder open
-    if (isEmptyFolder) {
-        // node.open();
-    }
+    useEffect(() => {
+        if (isEmptyFolder) {
+            node.open();
+        }
+    });
 
     return (
         <div style={style} ref={dragHandle} className="relative">
             <div
                 className={cn(
-                    "flex hover:scale-[102%] flex-row items-center justify-center gap-x-2 px-4 text-sm font-semibold py-1 h-10 rounded text-gray-200 bg-dark-300 hover:bg-dark-200 duration-200 ring-1 ring-white/10",
+                    buttonVariants({ variant: "outline" }),
+                    "flex flex-row items-center justify-center gap-x-2 px-4 py-1 h-10 duration-200",
                 )}
                 onClick={(e) => {
                     e.stopPropagation();
-                    node.toggle();
+                    !isEmptyFolder && node.toggle();
                 }}
                 onKeyDown={(e) => {
                     e.stopPropagation();
@@ -203,9 +188,9 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
                     }
                 }}
             >
-                {node.isLeaf ? null : (
+                {!node.isLeaf && (
                     <Icon
-                        icon={"tabler:chevron-right"}
+                        icon="tabler:chevron-right"
                         className={`size-4 ${node.isOpen ? "rotate-90" : ""}`}
                         width="none"
                         aria-hidden={true}
@@ -214,20 +199,14 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
                 <Icon
                     icon={node.isLeaf ? "tabler:link" : openIcon}
                     className="size-4"
-                    width={"none"}
+                    width="none"
                     aria-hidden={true}
                 />
                 <span
-                    contentEditable={false}
                     className={cn("grow", isFolder && "cursor-text")}
-                    onClick={(e) => {
-                        // If clicking while editing text, don't toggle
-                        isFolder && e.stopPropagation();
-                    }}
+                    onClick={(e) => isFolder && e.stopPropagation()}
                     onKeyDown={(e) => {
-                        // If clicking while editing text, don't toggle
                         isFolder && e.stopPropagation();
-
                         if (isFolder && e.key === "Enter") {
                             e.preventDefault();
                             e.currentTarget.blur();
@@ -235,7 +214,7 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
                     }}
                 >
                     {isFolder ? (
-                        node.data.content.data.name
+                        node.data.content.title
                     ) : (
                         <NodeContentRenderer
                             {...(node.data.content as Content)}
@@ -257,18 +236,55 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
 const NodeContentRenderer: FC<Content> = (content) => {
     switch (content.type) {
         case "link":
-            return <LinkNodeRenderer {...(content as Content<UserLinkData>)} />;
+            return <LinkNodeRenderer {...content} />;
         default:
-            return <span>Data</span>;
+            return <span>{content.title}</span>;
     }
 };
 
-const LinkNodeRenderer: FC<Content<UserLinkData>> = ({ data }) => {
-    // Show link title and then link data on hover
+const LinkNodeRenderer: FC<Content> = ({ title, data }) => {
     return (
-        <Popover>
+        <Drawer>
+            <DrawerTrigger className="block w-full text-left">
+                {title}
+            </DrawerTrigger>
+            <DrawerContent>
+                <DrawerHeader>
+                    <DrawerTitle>Edit link</DrawerTitle>
+                </DrawerHeader>
+                <div className="grid grid-cols-[auto_1fr] gap-4 p-4">
+                    <div className="overflow-hidden size-14 rounded ring-ring/5 ring-1">
+                        <img
+                            src="https://mk.cpluspatch.com/files/webpublic-5e8bfd4b-c2f9-40de-8ef0-0adb8e3b6d4c"
+                            alt=""
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
+                    <DrawerDescription className="flex flex-col justify-center gap-1">
+                        <span className="text-base font-semibold text-foreground">
+                            {title}
+                        </span>
+                        <span className="text-sm text-secondary-foreground">
+                            {data.url as string}
+                        </span>
+                    </DrawerDescription>
+                </div>
+                <DrawerFooter>
+                    <Button>Edit</Button>
+                    <DrawerClose asChild={true}>
+                        <Button variant="outline" className="w-full">
+                            Cancel
+                        </Button>
+                    </DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    );
+};
+
+/* <Popover>
             <PopoverTrigger className="block w-full text-left">
-                {data.title}
+                {title}
             </PopoverTrigger>
             <PopoverContent className="!p-0 overflow-hidden w-[calc(100vw-2rem)] translate-x-4">
                 <div className="grid grid-cols-[auto_1fr] gap-2">
@@ -280,15 +296,11 @@ const LinkNodeRenderer: FC<Content<UserLinkData>> = ({ data }) => {
                         />
                     </div>
                     <div className="flex flex-col justify-center gap-1">
-                        <span className="text-sm font-semibold">
-                            {data.title}
-                        </span>
+                        <span className="text-sm font-semibold">{title}</span>
                         <span className="text-xs text-gray-400">
-                            {data.url}
+                            {data.url as string}
                         </span>
                     </div>
                 </div>
             </PopoverContent>
-        </Popover>
-    );
-};
+        </Popover> */
