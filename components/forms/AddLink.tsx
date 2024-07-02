@@ -120,6 +120,7 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
                                         <FormControl>
                                             <Input
                                                 autoCorrect="off"
+                                                autoCapitalize="off"
                                                 placeholder="example.com"
                                                 className="!pl-16"
                                                 {...field}
