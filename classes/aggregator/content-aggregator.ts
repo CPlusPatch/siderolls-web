@@ -214,6 +214,14 @@ export function useSidepages(aggregator: SidepageAggregator) {
 
     const fetchSidepages = useCallback(async () => {
         const newSidepages = await aggregator.fetchAllSidepages();
+        if (newSidepages.length === 0) {
+            const newSidepage = await aggregator.createSidepage({
+                title: "New Sidepage",
+                creator: "Anonymous",
+                sidepoints: [],
+            });
+            newSidepages.push(newSidepage);
+        }
         setSidepages(newSidepages);
     }, [aggregator]);
 
