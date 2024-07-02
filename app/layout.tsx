@@ -24,7 +24,11 @@ export default function RootLayout({
         <html lang="en">
             <body className={`${inter.className}`}>
                 <MittProvider>
-                    <TooltipProvider>{children}</TooltipProvider>
+                    <TooltipProvider>
+                        <div vaul-drawer-wrapper="" className="min-h-[100vh]">
+                            {children}
+                        </div>
+                    </TooltipProvider>
                 </MittProvider>
             </body>
         </html>
