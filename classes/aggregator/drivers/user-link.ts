@@ -57,7 +57,7 @@ export class UserLinkDriver implements ContentDriver {
             dateAdded: new Date().toISOString(),
             url: rawData.url,
             description: metadata.description ?? "A user-provided link",
-            image: metadata.image?.url ?? metadata.logo?.url,
+            image: metadata.image?.url,
         };
     }
 

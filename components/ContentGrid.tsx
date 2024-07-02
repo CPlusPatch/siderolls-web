@@ -1,15 +1,9 @@
 import type { ContentItem } from "@/classes/sidepage/schema";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardTitle,
-} from "@/components/ui/card";
+import { CardTitle } from "@/components/ui/card";
 import { Icon } from "@iconify-icon/react";
 import { Edit, Trash } from "lucide-react";
 import type { FC } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,37 +15,59 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import TimeAgo from "react-timeago-i18n";
 
 export const ContentGridItem: FC<
     { item: ContentItem } & ContentItemActions
 > = ({ item, onDelete, onEdit }) => {
     return (
-        <Card className="grid grid-cols-[auto_1fr_auto] gap-4 p-4">
-            <CardContent className="p-0">
-                <Avatar className="overflow-hidden size-20 rounded ring-ring/5 ring-1 relative">
-                    <AvatarImage
-                        src={item.type === "link" ? item.image : ""}
-                        alt=""
-                    />
-                    <AvatarFallback className="animate-pulse rounded-none" />
-                </Avatar>
-            </CardContent>
-            <div className="flex flex-col justify-around overflow-hidden text-ellipsis max-h-20">
-                <CardTitle className="text-base font-semibold text-foreground line-clamp-1">
-                    {item.title}
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-                    {item.description}
-                </CardDescription>
+        <>
+            <div className="space-y-4">
+                <div className="rounded-lg border bg-card text-card-foreground shadow-sm aspect-[16/9] overflow-hidden">
+                    {item.type === "link" && !!item.image ? (
+                        <img
+                            src={item.type === "link" ? item.image : ""}
+                            alt="Thumbnail"
+                            className="w-full h-full object-fill"
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center w-full h-full">
+                            <Icon
+                                icon="tabler:link"
+                                className="size-16 text-muted-foreground"
+                                width="none"
+                            />
+                        </div>
+                    )}
+                </div>
+                <div className="grid grid-cols-[auto_1fr_auto] items-start gap-x-4">
+                    <Avatar className="rounded">
+                        <AvatarFallback className="rounded">
+                            <Icon
+                                icon="tabler:link"
+                                className="size-6 text-foreground"
+                                width="none"
+                            />
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                        <CardTitle className="font-semibold text-base line-clamp-2">
+                            {item.title}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                            <TimeAgo date={item.dateAdded} />
+                        </p>
+                    </div>
+                    <div>
+                        <GridItemContextMenu
+                            item={item}
+                            onDelete={onDelete}
+                            onEdit={onEdit}
+                        />
+                    </div>
+                </div>
             </div>
-            <CardFooter className="p-0 flex flex-col gap-y-1 justify-around">
-                <GridItemContextMenu
-                    item={item}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                />
-            </CardFooter>
-        </Card>
+        </>
     );
 };
 
@@ -70,7 +86,7 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
     onEdit,
 }) => {
     return (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((item) => (
                 <ContentGridItem
                     key={item.id}
@@ -101,6 +117,20 @@ export const GridItemContextMenu: FC<
                     <span>Edit</span>
                     <DropdownMenuShortcut>⌘I</DropdownMenuShortcut>
                 </DropdownMenuItem>
+                {item.type === "link" && (
+                    <DropdownMenuItem
+                        onClick={() => {
+                            navigator.clipboard.writeText(item.url);
+                        }}
+                    >
+                        <Icon
+                            className="mr-2 h-4 w-4"
+                            icon="tabler:clipboard"
+                        />
+                        <span>Copy Link</span>
+                        <DropdownMenuShortcut>⏎</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                     onClick={() => {
                         onDelete?.(item.id);

@@ -2,7 +2,7 @@
  * @fileoverview User media driver for Sidepage content
  */
 
-import type { ContentItem } from "@/classes/sidepage/schema";
+import type { ContentItem, Media } from "@/classes/sidepage/schema";
 import { nanoid } from "nanoid";
 import type { ContentDriver } from "../content-aggregator";
 
@@ -43,6 +43,6 @@ export class UserMediaDriver implements ContentDriver {
                 }
             })(),
             description: "A user-provided media file",
-        });
+        } as Media);
     }
 }

@@ -42,6 +42,11 @@ export interface Media extends BaseContent {
     format: string; // e.g., 'jpg', 'mp4', 'mp3'
 }
 
+export interface Video extends Media {
+    mediaType: "video";
+    thumbnail?: string;
+}
+
 export interface Article extends BaseContent {
     type: "article";
     url: string;
