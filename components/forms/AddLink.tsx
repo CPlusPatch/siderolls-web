@@ -7,6 +7,7 @@ import {
     Drawer,
     DrawerClose,
     DrawerContent,
+    DrawerDescription,
     DrawerTitle,
 } from "@/components/ui/drawer";
 import {
@@ -27,7 +28,19 @@ import { z } from "zod";
 import type { ContentAdderProps } from "./AddContent";
 
 const formSchema = z.object({
-    url: z.string().url(),
+    url: z
+        .string()
+        .url()
+        // Has at least one dot
+        .refine((v) => v.includes("."), { message: "Invalid URL" })
+        .or(
+            z
+                .string()
+                .transform((v) => `https://${v}`)
+                // Has at least one dot
+                .refine((v) => v.includes("."), { message: "Invalid URL" })
+                .refine((v) => URL.canParse(v), { message: "Invalid URL" }),
+        ),
     title: z.string().optional().default(""),
 });
 
@@ -59,10 +72,14 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
             url: "",
             title: "",
         },
+        mode: "onChange",
     });
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerDescription className="sr-only">
+                Link input form
+            </DrawerDescription>
             <DrawerContent>
                 <Form {...form}>
                     <form
@@ -97,12 +114,19 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>URL</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Link URL"
-                                            {...field}
-                                        />
-                                    </FormControl>
+                                    <div className="relative">
+                                        <span className="absolute top-2.5 left-3 text-muted-foreground/60 text-sm">
+                                            https://
+                                        </span>
+                                        <FormControl>
+                                            <Input
+                                                autoCorrect="off"
+                                                placeholder="example.com"
+                                                className="!pl-16"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    </div>
                                     <FormDescription className="flex flex-row justify-between items-center">
                                         <span>URL of the link</span>
                                     </FormDescription>

@@ -25,7 +25,10 @@ export default function RootLayout({
             <body className={`${inter.className}`}>
                 <MittProvider>
                     <TooltipProvider>
-                        <div vaul-drawer-wrapper="" className="min-h-[100vh]">
+                        <div
+                            vaul-drawer-wrapper=""
+                            className="min-h-[100vh] bg-background"
+                        >
                             {children}
                         </div>
                     </TooltipProvider>
