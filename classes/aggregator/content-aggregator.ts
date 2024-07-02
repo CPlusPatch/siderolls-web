@@ -214,14 +214,6 @@ export function useSidepages(aggregator: SidepageAggregator) {
 
     const fetchSidepages = useCallback(async () => {
         const newSidepages = await aggregator.fetchAllSidepages();
-        if (newSidepages.length === 0) {
-            const newSidepage = await aggregator.createSidepage({
-                title: "New Sidepage",
-                creator: "Anonymous",
-                sidepoints: [],
-            });
-            newSidepages.push(newSidepage);
-        }
         setSidepages(newSidepages);
     }, [aggregator]);
 
@@ -237,13 +229,23 @@ export function useSidepages(aggregator: SidepageAggregator) {
 /**
  * Custom hook for fetching and updating ContentItems
  */
-export function useContent(aggregator: SidepageAggregator) {
+export function useContent(
+    aggregator: SidepageAggregator,
+    sidepageId?: string,
+) {
     const [content, setContent] = useState<ContentItem[]>([]);
 
     const fetchContent = useCallback(async () => {
-        const newContent = await aggregator.fetchAllContentItems();
-        setContent(newContent);
-    }, [aggregator]);
+        if (sidepageId) {
+            const newContent = await aggregator
+                .getSidepage(sidepageId)
+                .then((s) => s?.content || []);
+            setContent(newContent);
+        } else {
+            const newContent = await aggregator.fetchAllContentItems();
+            setContent(newContent);
+        }
+    }, [aggregator, sidepageId]);
 
     useEffect(() => {
         fetchContent();

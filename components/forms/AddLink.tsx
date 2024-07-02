@@ -72,7 +72,6 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
             url: "",
             title: "",
         },
-        mode: "onChange",
     });
 
     return (
