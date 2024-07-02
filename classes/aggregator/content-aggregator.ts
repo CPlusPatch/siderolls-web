@@ -4,37 +4,39 @@ import { useCallback, useEffect, useState } from "react";
  * @fileoverview Core classes and interfaces for the content aggregator framework
  */
 import type { WxtStorage } from "wxt/storage";
-import { RSSDriver } from "./drivers/rss";
-import { TwitterDriver } from "./drivers/twitter";
+import type { ContentItem } from "../sidepage/schema";
 import { UserLinkDriver } from "./drivers/user-link";
 import { UserMediaDriver } from "./drivers/user-media";
 
 /**
- * Represents a piece of content from any source
+ * Represents a Sidepage
  */
-export interface Content<DataType = Record<string, unknown>> {
+export interface DatabaseSidepage {
     id: string;
-    type: "link" | "media" | "text" | "social" | "folder";
-    parentId: string | null;
-    source: string;
-    timestamp: number;
     title: string;
-    data: DataType;
+    description?: string;
+    creator: string;
+    dateCreated: string;
+    dateModified: string;
+    sidepoints: string[];
+    contentIds: string[];
+    parentId?: string;
+    childrenIds: string[];
 }
 
 /**
  * Interface for content provider drivers
  */
-export interface ContentDriver<DataType = Record<string, unknown>> {
+export interface ContentDriver {
     name: string;
-    fetchContent(): Promise<Content<DataType>[]>;
-    parseContent(rawData: unknown): Content<DataType>;
+    fetchContent(): Promise<ContentItem[]>;
+    parseContent(rawData: unknown): Promise<ContentItem>;
 }
 
 /**
- * Main class for managing content aggregation
+ * Main class for managing Sidepage aggregation
  */
-export class ContentAggregator {
+export class SidepageAggregator {
     private drivers: ContentDriver[];
     private storage: WxtStorage;
     private listeners: Set<() => void>;
@@ -54,85 +56,125 @@ export class ContentAggregator {
     }
 
     /**
-     * Fetch all content from storage and drivers
-     * @returns A promise that resolves to an array of Content
+     * Fetch all Sidepages from storage
+     * @returns A promise that resolves to an array of Sidepages
      */
-    async fetchAllContent(): Promise<Content[]> {
-        const driverContent = await Promise.all(
-            this.drivers.map((driver) => driver.fetchContent()),
-        );
-        const storedContent = await this.getAllStoredContent();
-        return [...driverContent.flat(), ...storedContent];
-    }
-
-    private async getAllStoredContent(): Promise<Content[]> {
+    async fetchAllSidepages(): Promise<DatabaseSidepage[]> {
         const allStorage = await this.storage.snapshot("local");
-        return Object.values(allStorage) as Content[];
+        return Object.values(allStorage).filter(
+            (item): item is DatabaseSidepage =>
+                typeof item === "object" &&
+                item !== null &&
+                "contentIds" in item,
+        );
     }
 
     /**
-     * Store content in the WebExtension storage
-     * @param content - The content to store
+     * Fetch all ContentItems from storage
+     * @returns A promise that resolves to an array of ContentItems
      */
-    async storeContent(content: Content): Promise<void> {
-        await this.storage.setItem(`local:${content.id}`, content);
+    async fetchAllContentItems(): Promise<ContentItem[]> {
+        const allStorage = await this.storage.snapshot("local");
+        return Object.values(allStorage).filter(
+            (item): item is ContentItem =>
+                typeof item === "object" && item !== null && "type" in item,
+        );
+    }
+
+    /**
+     * Create a new Sidepage
+     * @param sidepage - The Sidepage to create
+     */
+    async createSidepage(
+        sidepage: Omit<DatabaseSidepage, "id" | "dateCreated" | "dateModified">,
+    ): Promise<DatabaseSidepage> {
+        const newSidepage: DatabaseSidepage = {
+            ...sidepage,
+            id: nanoid(),
+            dateCreated: new Date().toISOString(),
+            dateModified: new Date().toISOString(),
+        };
+        await this.storage.setItem(
+            `local:sidepage:${newSidepage.id}`,
+            newSidepage,
+        );
+        this.notifyListeners();
+        return newSidepage;
+    }
+
+    /**
+     * Add a ContentItem to a Sidepage
+     * @param sidepageId - The ID of the Sidepage
+     * @param contentItem - The ContentItem to add
+     */
+    async addContentToSidepage(
+        sidepageId: string,
+        contentItem: Omit<ContentItem, "id" | "dateAdded">,
+    ): Promise<void> {
+        const sidepage = await this.getSidepage(sidepageId);
+        if (!sidepage) {
+            throw new Error(`Sidepage not found: ${sidepageId}`);
+        }
+
+        const newContentItem: ContentItem = {
+            ...(contentItem as ContentItem),
+            id: nanoid(),
+            dateAdded: new Date().toISOString(),
+        };
+
+        await this.storage.setItem(
+            `local:content:${newContentItem.id}`,
+            newContentItem,
+        );
+        sidepage.contentIds.push(newContentItem.id);
+        sidepage.dateModified = new Date().toISOString();
+        await this.storage.setItem(`local:sidepage:${sidepage.id}`, sidepage);
         this.notifyListeners();
     }
 
     /**
-     * Create a new folder in the WebExtension storage
-     * @param name - The name of the new folder
-     * @param parentId - The ID of the parent folder, or null for root
+     * Retrieve a Sidepage from storage
+     * @param id - The ID of the Sidepage to retrieve
      */
-    async createFolder(
-        name: string,
-        parentId: string | null,
-    ): Promise<Content> {
-        const folder: Content = {
-            id: nanoid(),
-            type: "folder",
-            source: "local",
-            parentId,
-            timestamp: Date.now(),
-            title: name,
-            data: {},
-        };
-        await this.storeContent(folder);
-        return folder;
+    async getSidepage(id: string): Promise<DatabaseSidepage | null> {
+        return await this.storage.getItem<DatabaseSidepage>(
+            `local:sidepage:${id}`,
+        );
     }
 
     /**
-     * Move content to a new parent folder
-     * @param contentId - The ID of the content to move
-     * @param newParentId - The ID of the new parent folder, or null for root
+     * Retrieve a ContentItem from storage
+     * @param id - The ID of the ContentItem to retrieve
      */
-    async moveContent(
-        contentId: string,
-        newParentId: string | null,
-    ): Promise<void> {
-        const content = await this.getContent(contentId);
-        if (!content) {
-            throw new Error(`Content not found: ${contentId}`);
+    async getContentItem(id: string): Promise<DatabaseSidepage | null> {
+        return await this.storage.getItem<DatabaseSidepage>(
+            `local:content:${id}`,
+        );
+    }
+
+    /**
+     * Remove a Sidepage and all its content from storage
+     * @param id - The ID of the Sidepage to remove
+     */
+    async removeSidepage(id: string): Promise<void> {
+        const sidepage = await this.getSidepage(id);
+        if (sidepage) {
+            await Promise.all(
+                sidepage.contentIds.map((contentId) =>
+                    this.storage.removeItem(`local:content:${contentId}`),
+                ),
+            );
+            await this.storage.removeItem(`local:sidepage:${id}`);
+            this.notifyListeners();
         }
-        content.parentId = newParentId;
-        await this.storeContent(content);
     }
 
     /**
-     * Retrieve content from the WebExtension storage
-     * @param id - The ID of the content to retrieve
-     * @returns A promise that resolves to the Content or null if not found
+     * Remove a ContentItem from storage
+     * @param id - The ID of the ContentItem to remove
      */
-    async getContent(id: string): Promise<Content | null> {
-        return await this.storage.getItem<Content>(`local:${id}`);
-    }
-
-    /**
-     * Remove content from the WebExtension storage
-     * @param id - The ID of the content to remove
-     */
-    async removeContent(id: string): Promise<void> {
-        await this.storage.removeItem(`local:${id}`);
+    async removeContentItem(id: string): Promise<void> {
+        await this.storage.removeItem(`local:content:${id}`);
         this.notifyListeners();
     }
 
@@ -160,13 +202,30 @@ export class ContentAggregator {
 }
 
 /**
- * Custom hook for fetching and updating content
+ * Custom hook for fetching and updating Sidepages
  */
-export function useContent(aggregator: ContentAggregator) {
-    const [content, setContent] = useState<Content[]>([]);
+export function useSidepages(aggregator: SidepageAggregator) {
+    const [sidepages, setSidepages] = useState<DatabaseSidepage[]>([]);
+
+    const fetchSidepages = useCallback(async () => {
+        const newSidepages = await aggregator.fetchAllSidepages();
+        setSidepages(newSidepages);
+    }, [aggregator]);
+
+    useEffect(() => {
+        fetchSidepages();
+        aggregator.addListener(fetchSidepages);
+        return () => aggregator.removeListener(fetchSidepages);
+    }, [aggregator, fetchSidepages]);
+
+    return sidepages;
+}
+
+export function useContent(aggregator: SidepageAggregator) {
+    const [content, setContent] = useState<ContentItem[]>([]);
 
     const fetchContent = useCallback(async () => {
-        const newContent = await aggregator.fetchAllContent();
+        const newContent = await aggregator.fetchAllContentItems();
         setContent(newContent);
     }, [aggregator]);
 
@@ -184,13 +243,8 @@ export function useContent(aggregator: ContentAggregator) {
  */
 // biome-ignore lint/complexity/noStaticOnlyClass: Factory pattern
 export class DriverFactory {
-    // biome-ignore lint/suspicious/noExplicitAny: // TODO: Add config type
-    static createDriver(type: string, config: any): ContentDriver {
+    static createDriver(type: string): ContentDriver {
         switch (type) {
-            case "rss":
-                return new RSSDriver(config);
-            case "twitter":
-                return new TwitterDriver(config);
             case "user-link":
                 return new UserLinkDriver();
             case "user-media":

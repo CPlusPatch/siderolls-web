@@ -1,8 +1,8 @@
 import {
-    type Content,
-    type ContentAggregator,
+    type SidepageAggregator,
     useContent,
 } from "@/classes/aggregator/content-aggregator";
+import type { ContentItem } from "@/classes/sidepage/schema";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
     Drawer,
@@ -35,16 +35,17 @@ import {
     Tree,
 } from "react-arborist";
 import useResizeObserver from "use-resize-observer";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface TreeNode {
     id: string;
     name: string;
-    content: Content;
+    content: ContentItem;
     children?: TreeNode[];
 }
 
 interface ContentTreeProps {
-    aggregator: ContentAggregator;
+    aggregator: SidepageAggregator;
 }
 
 export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
@@ -64,7 +65,7 @@ export const ContentTree: FC<ContentTreeProps> = ({ aggregator }) => {
     }, [content]);
 
     const organizeContentIntoTree = (
-        content: Content[],
+        content: ContentItem[],
         isRoot = true,
     ): TreeNode[] => {
         return content
@@ -188,7 +189,14 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
                     }
                 }}
             >
-                {!node.isLeaf && (
+                {node.isLeaf ? (
+                    <Icon
+                        icon={node.isLeaf ? "tabler:link" : openIcon}
+                        className="size-4"
+                        width="none"
+                        aria-hidden={true}
+                    />
+                ) : (
                     <Icon
                         icon="tabler:chevron-right"
                         className={`size-4 ${node.isOpen ? "rotate-90" : ""}`}
@@ -196,12 +204,6 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
                         aria-hidden={true}
                     />
                 )}
-                <Icon
-                    icon={node.isLeaf ? "tabler:link" : openIcon}
-                    className="size-4"
-                    width="none"
-                    aria-hidden={true}
-                />
                 <span
                     className={cn("grow", isFolder && "cursor-text")}
                     onClick={(e) => isFolder && e.stopPropagation()}
@@ -217,7 +219,7 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
                         node.data.content.title
                     ) : (
                         <NodeContentRenderer
-                            {...(node.data.content as Content)}
+                            {...(node.data.content as ContentItem)}
                         />
                     )}
                 </span>
@@ -233,7 +235,7 @@ function Node({ node, style, dragHandle, tree }: NodeRendererProps<TreeNode>) {
     );
 }
 
-const NodeContentRenderer: FC<Content> = (content) => {
+const NodeContentRenderer: FC<ContentItem> = (content) => {
     switch (content.type) {
         case "link":
             return <LinkNodeRenderer {...content} />;
@@ -242,7 +244,7 @@ const NodeContentRenderer: FC<Content> = (content) => {
     }
 };
 
-const LinkNodeRenderer: FC<Content> = ({ title, data }) => {
+const LinkNodeRenderer: FC<ContentItem> = ({ title, data }) => {
     return (
         <Drawer>
             <DrawerTrigger className="block w-full text-left">
@@ -253,13 +255,13 @@ const LinkNodeRenderer: FC<Content> = ({ title, data }) => {
                     <DrawerTitle>Edit link</DrawerTitle>
                 </DrawerHeader>
                 <div className="grid grid-cols-[auto_1fr] gap-4 p-4">
-                    <div className="overflow-hidden size-14 rounded ring-ring/5 ring-1">
-                        <img
+                    <Avatar className="overflow-hidden size-14 rounded ring-ring/5 ring-1 relative">
+                        <AvatarImage
                             src="https://mk.cpluspatch.com/files/webpublic-5e8bfd4b-c2f9-40de-8ef0-0adb8e3b6d4c"
                             alt=""
-                            className="object-cover w-full h-full"
                         />
-                    </div>
+                        <AvatarFallback className="animate-pulse rounded-none" />
+                    </Avatar>
                     <DrawerDescription className="flex flex-col justify-center gap-1">
                         <span className="text-base font-semibold text-foreground">
                             {title}
@@ -281,26 +283,3 @@ const LinkNodeRenderer: FC<Content> = ({ title, data }) => {
         </Drawer>
     );
 };
-
-/* <Popover>
-            <PopoverTrigger className="block w-full text-left">
-                {title}
-            </PopoverTrigger>
-            <PopoverContent className="!p-0 overflow-hidden w-[calc(100vw-2rem)] translate-x-4">
-                <div className="grid grid-cols-[auto_1fr] gap-2">
-                    <div className="overflow-hidden size-14">
-                        <img
-                            src="https://mk.cpluspatch.com/files/webpublic-5e8bfd4b-c2f9-40de-8ef0-0adb8e3b6d4c"
-                            alt=""
-                            className="object-cover w-full h-full"
-                        />
-                    </div>
-                    <div className="flex flex-col justify-center gap-1">
-                        <span className="text-sm font-semibold">{title}</span>
-                        <span className="text-xs text-gray-400">
-                            {data.url as string}
-                        </span>
-                    </div>
-                </div>
-            </PopoverContent>
-        </Popover> */

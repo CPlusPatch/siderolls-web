@@ -1,31 +1,48 @@
-import { nanoid } from "nanoid";
-import type { Content, ContentDriver } from "../content-aggregator";
+/**
+ * @fileoverview User media driver for Sidepage content
+ */
 
-export type UserMediaData = { file: File; title: string };
+import type { ContentItem } from "@/classes/sidepage/schema";
+import { nanoid } from "nanoid";
+import type { ContentDriver } from "../content-aggregator";
+
+export interface UserMediaData {
+    file: File;
+    title: string;
+}
 
 /**
  * Driver for user-uploaded media
  */
-export class UserMediaDriver implements ContentDriver<UserMediaData> {
+export class UserMediaDriver implements ContentDriver {
     name = "UserMedia";
 
-    fetchContent(): Promise<Content<UserMediaData>[]> {
+    fetchContent(): Promise<ContentItem[]> {
         // This method won't be used for user-provided content
         return Promise.resolve([]);
     }
 
-    parseContent(rawData: UserMediaData): Content<UserMediaData> {
-        return {
+    parseContent(rawData: UserMediaData): Promise<ContentItem> {
+        return Promise.resolve({
             id: nanoid(),
             type: "media",
-            source: this.name,
-            parentId: null,
-            timestamp: Date.now(),
             title: rawData.title || rawData.file.name,
-            data: {
-                file: rawData.file,
-                title: rawData.title || rawData.file.name,
-            },
-        };
+            dateAdded: new Date().toISOString(),
+            url: URL.createObjectURL(rawData.file),
+            format: rawData.file.type.split("/")[1],
+            mediaType: (() => {
+                switch (rawData.file.type.split("/")[0]) {
+                    case "image":
+                        return "image";
+                    case "video":
+                        return "video";
+                    case "audio":
+                        return "audio";
+                    default:
+                        throw new Error("Invalid media type");
+                }
+            })(),
+            description: "A user-provided media file",
+        });
     }
 }

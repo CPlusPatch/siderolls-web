@@ -1,26 +1,20 @@
 import {
-    ContentAggregator,
-    DriverFactory,
+    SidepageAggregator,
+    useContent,
+    useSidepages,
 } from "@/classes/aggregator/content-aggregator";
-import { ContentTree } from "@/components/ContentTreeRenderer";
-import { AddLinkForm } from "@/components/forms/AddLink";
+import { ContentGrid } from "@/components/ContentGrid";
+import { AddLinkDialog } from "@/components/forms/AddLink";
+import {
+    SidepageCreator,
+    SidepageSelector,
+} from "@/components/forms/SidepageSelector";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useRef, useState } from "react";
 import { storage } from "wxt/storage";
 
-const aggregator = new ContentAggregator(storage);
-
-// Add content drivers
-const rssDriver = DriverFactory.createDriver("rss", {
-    feedUrl: "https://example.com/feed",
-});
-const twitterDriver = DriverFactory.createDriver("twitter", {
-    username: "example_user",
-});
-
-aggregator.addDriver(rssDriver);
-aggregator.addDriver(twitterDriver);
+const aggregator = new SidepageAggregator(storage);
 
 const useDarkMode = () => {
     const [darkMode, setDarkMode] = useState(true);
@@ -39,6 +33,8 @@ const useDarkMode = () => {
 function App() {
     const mainRef = useRef<HTMLDivElement>(null);
     const [darkMode, setDarkMode] = useDarkMode();
+    const content = useContent(aggregator);
+    const sidepages = useSidepages(aggregator);
 
     return (
         <>
@@ -58,9 +54,19 @@ function App() {
                         </Label>
                     </div>
                 </header>
-                <AddLinkForm aggregator={aggregator} />
+                <div className="grid grid-cols-[1fr_auto] gap-2">
+                    <SidepageSelector sidepages={sidepages} />
+                    <SidepageCreator aggregator={aggregator} />
+                </div>
+                <AddLinkDialog aggregator={aggregator} />
                 <main className="grow" ref={mainRef}>
-                    <ContentTree aggregator={aggregator} />
+                    {/*  <ContentTree aggregator={aggregator} /> */}
+                    <ContentGrid
+                        items={content}
+                        onDelete={(id) => {
+                            aggregator.removeContentItem(id);
+                        }}
+                    />
                 </main>
             </div>
         </>
