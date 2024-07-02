@@ -28,7 +28,7 @@ export const ContentGridItem: FC<
                         <img
                             src={item.type === "link" ? item.image : ""}
                             alt="Thumbnail"
-                            className="w-full h-full object-fill"
+                            className="w-full h-full object-cover"
                         />
                     ) : (
                         <div className="flex items-center justify-center w-full h-full">
