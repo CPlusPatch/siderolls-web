@@ -1,3 +1,5 @@
+"use client";
+
 import type { SidepageAggregator } from "@/classes/aggregator/content-aggregator";
 import { UserLinkDriver } from "@/classes/aggregator/drivers/user-link";
 import { Button } from "@/components/ui/button";
@@ -58,14 +60,6 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
         },
     });
 
-    const getTab = async () => {
-        const currentTabs = await browser.tabs.query({
-            active: true,
-            lastFocusedWindow: true,
-        });
-        return currentTabs[0];
-    };
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild={true}>
@@ -106,11 +100,10 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
                                             variant="link"
                                             type="button"
                                             className="!p-0 h-[unset]"
-                                            onClick={async () =>
+                                            onClick={() =>
                                                 form.setValue(
                                                     "title",
-                                                    (await getTab()).title ??
-                                                        "",
+                                                    window.document.title,
                                                 )
                                             }
                                         >
@@ -140,10 +133,11 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
                                             variant="link"
                                             type="button"
                                             className="!p-0 h-[unset]"
-                                            onClick={async () =>
+                                            onClick={() =>
                                                 form.setValue(
                                                     "url",
-                                                    (await getTab()).url ?? "",
+                                                    window.document.location
+                                                        .href,
                                                 )
                                             }
                                         >

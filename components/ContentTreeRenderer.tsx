@@ -1,4 +1,4 @@
-import {
+/* import {
     type SidepageAggregator,
     useContent,
 } from "@/classes/aggregator/content-aggregator";
@@ -283,3 +283,4 @@ const LinkNodeRenderer: FC<ContentItem> = ({ title, data }) => {
         </Drawer>
     );
 };
+ */

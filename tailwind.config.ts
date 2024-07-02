@@ -3,13 +3,12 @@ import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 import animate from "tailwindcss-animate";
 
-const config = {
-    darkMode: ["class"],
+const config: Config = {
     content: [
-        "./entrypoints/**/*.{js,jsx,ts,tsx,html}",
-        "./components/**/*.{js,jsx,ts,tsx,html}",
+        "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+        "./components/**/*.{js,ts,jsx,tsx,mdx}",
+        "./app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
-    prefix: "",
     theme: {
         container: {
             center: true,
@@ -65,7 +64,9 @@ const config = {
                     to: { height: "var(--radix-accordion-content-height)" },
                 },
                 "accordion-up": {
-                    from: { height: "var(--radix-accordion-content-height)" },
+                    from: {
+                        height: "var(--radix-accordion-content-height)",
+                    },
                     to: { height: "0" },
                 },
             },
@@ -73,9 +74,12 @@ const config = {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
             },
+            fontFamily: {
+                sans: ["Inter", "sans-serif"],
+                inter: ["Inter", "sans-serif"],
+            },
         },
     },
-    plugins: [animate, forms, typography],
-} satisfies Config;
-
+    plugins: [forms, typography, animate],
+};
 export default config;

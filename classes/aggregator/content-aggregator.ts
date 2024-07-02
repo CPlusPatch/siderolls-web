@@ -1,28 +1,14 @@
+"use client";
+
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
-/**
- * @fileoverview Core classes and interfaces for the content aggregator framework
- */
-import type { WxtStorage } from "wxt/storage";
-import type { ContentItem } from "../sidepage/schema";
+import type { ContentItem, Sidepage } from "../sidepage/schema";
 import { UserLinkDriver } from "./drivers/user-link";
 import { UserMediaDriver } from "./drivers/user-media";
 
 /**
- * Represents a Sidepage
+ * @fileoverview Core class for the Sidepage aggregator using localStorage
  */
-export interface DatabaseSidepage {
-    id: string;
-    title: string;
-    description?: string;
-    creator: string;
-    dateCreated: string;
-    dateModified: string;
-    sidepoints: string[];
-    contentIds: string[];
-    parentId?: string;
-    childrenIds: string[];
-}
 
 /**
  * Interface for content provider drivers
@@ -34,16 +20,15 @@ export interface ContentDriver {
 }
 
 /**
- * Main class for managing Sidepage aggregation
+ * Main class for managing Sidepage aggregation using localStorage
  */
 export class SidepageAggregator {
     private drivers: ContentDriver[];
-    private storage: WxtStorage;
     private listeners: Set<() => void>;
+    private readonly storageKey = "siderolls:data";
 
-    constructor(storage: WxtStorage) {
+    constructor() {
         this.drivers = [];
-        this.storage = storage;
         this.listeners = new Set();
     }
 
@@ -56,17 +41,28 @@ export class SidepageAggregator {
     }
 
     /**
+     * Get all data from localStorage
+     */
+    private getAllData(): Record<string, Sidepage> {
+        const data = localStorage.getItem(this.storageKey);
+        return data ? JSON.parse(data) : {};
+    }
+
+    /**
+     * Save all data to localStorage
+     */
+    private saveAllData(data: Record<string, Sidepage>): void {
+        localStorage.setItem(this.storageKey, JSON.stringify(data));
+        this.notifyListeners();
+    }
+
+    /**
      * Fetch all Sidepages from storage
      * @returns A promise that resolves to an array of Sidepages
      */
-    async fetchAllSidepages(): Promise<DatabaseSidepage[]> {
-        const allStorage = await this.storage.snapshot("local");
-        return Object.values(allStorage).filter(
-            (item): item is DatabaseSidepage =>
-                typeof item === "object" &&
-                item !== null &&
-                "contentIds" in item,
-        );
+    fetchAllSidepages(): Promise<Sidepage[]> {
+        const allData = this.getAllData();
+        return Promise.resolve(Object.values(allData));
     }
 
     /**
@@ -74,32 +70,33 @@ export class SidepageAggregator {
      * @returns A promise that resolves to an array of ContentItems
      */
     async fetchAllContentItems(): Promise<ContentItem[]> {
-        const allStorage = await this.storage.snapshot("local");
-        return Object.values(allStorage).filter(
-            (item): item is ContentItem =>
-                typeof item === "object" && item !== null && "type" in item,
-        );
+        const allData = this.getAllData();
+        return Object.values(allData).flatMap((sidepage) => sidepage.content);
     }
 
     /**
      * Create a new Sidepage
      * @param sidepage - The Sidepage to create
      */
-    async createSidepage(
-        sidepage: Omit<DatabaseSidepage, "id" | "dateCreated" | "dateModified">,
-    ): Promise<DatabaseSidepage> {
-        const newSidepage: DatabaseSidepage = {
+    createSidepage(
+        sidepage: Omit<
+            Sidepage,
+            "id" | "dateCreated" | "dateModified" | "content"
+        >,
+    ): Promise<Sidepage> {
+        const newSidepage: Sidepage = {
             ...sidepage,
             id: nanoid(),
             dateCreated: new Date().toISOString(),
             dateModified: new Date().toISOString(),
+            content: [],
         };
-        await this.storage.setItem(
-            `local:sidepage:${newSidepage.id}`,
-            newSidepage,
-        );
-        this.notifyListeners();
-        return newSidepage;
+
+        const allData = this.getAllData();
+        allData[newSidepage.id] = newSidepage;
+        this.saveAllData(allData);
+
+        return Promise.resolve(newSidepage);
     }
 
     /**
@@ -107,11 +104,12 @@ export class SidepageAggregator {
      * @param sidepageId - The ID of the Sidepage
      * @param contentItem - The ContentItem to add
      */
-    async addContentToSidepage(
+    addContentToSidepage(
         sidepageId: string,
         contentItem: Omit<ContentItem, "id" | "dateAdded">,
     ): Promise<void> {
-        const sidepage = await this.getSidepage(sidepageId);
+        const allData = this.getAllData();
+        const sidepage = allData[sidepageId];
         if (!sidepage) {
             throw new Error(`Sidepage not found: ${sidepageId}`);
         }
@@ -122,33 +120,33 @@ export class SidepageAggregator {
             dateAdded: new Date().toISOString(),
         };
 
-        await this.storage.setItem(
-            `local:content:${newContentItem.id}`,
-            newContentItem,
-        );
-        sidepage.contentIds.push(newContentItem.id);
+        sidepage.content.push(newContentItem);
         sidepage.dateModified = new Date().toISOString();
-        await this.storage.setItem(`local:sidepage:${sidepage.id}`, sidepage);
-        this.notifyListeners();
+        this.saveAllData(allData);
+        return Promise.resolve();
     }
 
     /**
      * Retrieve a Sidepage from storage
      * @param id - The ID of the Sidepage to retrieve
      */
-    async getSidepage(id: string): Promise<DatabaseSidepage | null> {
-        return await this.storage.getItem<DatabaseSidepage>(
-            `local:sidepage:${id}`,
-        );
+    getSidepage(id: string): Promise<Sidepage | null> {
+        const allData = this.getAllData();
+        return Promise.resolve(allData[id] || null);
     }
 
     /**
      * Retrieve a ContentItem from storage
-     * @param id - The ID of the ContentItem to retrieve
+     * @param sidepageId - The ID of the Sidepage containing the ContentItem
+     * @param contentItemId - The ID of the ContentItem to retrieve
      */
-    async getContentItem(id: string): Promise<DatabaseSidepage | null> {
-        return await this.storage.getItem<DatabaseSidepage>(
-            `local:content:${id}`,
+    async getContentItem(
+        sidepageId: string,
+        contentItemId: string,
+    ): Promise<ContentItem | null> {
+        const sidepage = await this.getSidepage(sidepageId);
+        return (
+            sidepage?.content.find((item) => item.id === contentItemId) || null
         );
     }
 
@@ -156,26 +154,33 @@ export class SidepageAggregator {
      * Remove a Sidepage and all its content from storage
      * @param id - The ID of the Sidepage to remove
      */
-    async removeSidepage(id: string): Promise<void> {
-        const sidepage = await this.getSidepage(id);
-        if (sidepage) {
-            await Promise.all(
-                sidepage.contentIds.map((contentId) =>
-                    this.storage.removeItem(`local:content:${contentId}`),
-                ),
-            );
-            await this.storage.removeItem(`local:sidepage:${id}`);
-            this.notifyListeners();
-        }
+    removeSidepage(id: string): Promise<void> {
+        const allData = this.getAllData();
+        delete allData[id];
+        this.saveAllData(allData);
+        return Promise.resolve();
     }
 
     /**
-     * Remove a ContentItem from storage
-     * @param id - The ID of the ContentItem to remove
+     * Remove a ContentItem from a Sidepage
+     * @param sidepageId - The ID of the Sidepage containing the ContentItem
+     * @param contentItemId - The ID of the ContentItem to remove
      */
-    async removeContentItem(id: string): Promise<void> {
-        await this.storage.removeItem(`local:content:${id}`);
-        this.notifyListeners();
+    removeContentItem(
+        sidepageId: string,
+        contentItemId: string,
+    ): Promise<void> {
+        const allData = this.getAllData();
+        const sidepage = allData[sidepageId];
+        if (sidepage) {
+            sidepage.content = sidepage.content.filter(
+                (item) => item.id !== contentItemId,
+            );
+            sidepage.dateModified = new Date().toISOString();
+            this.saveAllData(allData);
+        }
+
+        return Promise.resolve();
     }
 
     /**
@@ -205,7 +210,7 @@ export class SidepageAggregator {
  * Custom hook for fetching and updating Sidepages
  */
 export function useSidepages(aggregator: SidepageAggregator) {
-    const [sidepages, setSidepages] = useState<DatabaseSidepage[]>([]);
+    const [sidepages, setSidepages] = useState<Sidepage[]>([]);
 
     const fetchSidepages = useCallback(async () => {
         const newSidepages = await aggregator.fetchAllSidepages();
@@ -221,6 +226,9 @@ export function useSidepages(aggregator: SidepageAggregator) {
     return sidepages;
 }
 
+/**
+ * Custom hook for fetching and updating ContentItems
+ */
 export function useContent(aggregator: SidepageAggregator) {
     const [content, setContent] = useState<ContentItem[]>([]);
 

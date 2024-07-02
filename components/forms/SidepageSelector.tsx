@@ -1,7 +1,5 @@
-import type {
-    DatabaseSidepage,
-    SidepageAggregator,
-} from "@/classes/aggregator/content-aggregator";
+import type { SidepageAggregator } from "@/classes/aggregator/content-aggregator";
+import type { Sidepage } from "@/classes/sidepage/schema";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -13,7 +11,7 @@ import {
 import { Icon } from "@iconify-icon/react";
 import type { FC } from "react";
 
-export const SidepageSelector: FC<{ sidepages: DatabaseSidepage[] }> = ({
+export const SidepageSelector: FC<{ sidepages: Sidepage[] }> = ({
     sidepages,
 }) => {
     return (
@@ -43,8 +41,6 @@ export const SidepageCreator: FC<{ aggregator: SidepageAggregator }> = ({
             title: "New Sidepage",
             description: "A new sidepage",
             creator: "user",
-            childrenIds: [],
-            contentIds: [],
             sidepoints: [],
         });
     };
