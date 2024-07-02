@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { MittProvider } from "@/components/events/useMitt";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { ReactNode } from "react";
 
@@ -22,7 +23,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${inter.className}`}>
-                <TooltipProvider>{children}</TooltipProvider>
+                <MittProvider>
+                    <TooltipProvider>{children}</TooltipProvider>
+                </MittProvider>
             </body>
         </html>
     );

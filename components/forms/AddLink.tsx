@@ -1,15 +1,14 @@
 "use client";
 
-import type { SidepageAggregator } from "@/classes/aggregator/content-aggregator";
+import { aggregator } from "@/classes/aggregator/content-aggregator";
 import { UserLinkDriver } from "@/classes/aggregator/drivers/user-link";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerTitle,
+} from "@/components/ui/drawer";
 import {
     Form,
     FormControl,
@@ -21,21 +20,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Icon } from "@iconify-icon/react";
 import { Loader2 } from "lucide-react";
 import { type FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import type { ContentAdderProps } from "./AddContent";
 
 const formSchema = z.object({
     url: z.string().url(),
-    title: z.string().min(1).optional().default(""),
+    title: z.string().optional().default(""),
 });
 
-export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
-    aggregator,
+export const AddLinkDialog: FC<ContentAdderProps> = ({
+    open,
+    setOpen,
+    onAdd,
 }) => {
-    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -50,6 +50,7 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
         form.reset();
         setLoading(false);
         setOpen(false);
+        onAdd?.("link");
     };
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -61,26 +62,14 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
     });
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild={true}>
-                <Button variant="default">
-                    <Icon
-                        icon="tabler:link-plus"
-                        className="size-5 mr-2"
-                        width="none"
-                    />
-                    Add Link
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerContent>
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8"
+                        className="space-y-8 mx-auto w-full max-w-sm p-4"
                     >
-                        <DialogTitle className="text-center">
-                            Add Link
-                        </DialogTitle>
+                        <DrawerTitle className="sr-only">Add Link</DrawerTitle>
                         <FormField
                             control={form.control}
                             disabled={loading}
@@ -96,19 +85,6 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
                                     </FormControl>
                                     <FormDescription className="flex flex-row justify-between items-center">
                                         <span>Optional title for the link</span>
-                                        <Button
-                                            variant="link"
-                                            type="button"
-                                            className="!p-0 h-[unset]"
-                                            onClick={() =>
-                                                form.setValue(
-                                                    "title",
-                                                    window.document.title,
-                                                )
-                                            }
-                                        >
-                                            Use current tab
-                                        </Button>
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -129,26 +105,12 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
                                     </FormControl>
                                     <FormDescription className="flex flex-row justify-between items-center">
                                         <span>URL of the link</span>
-                                        <Button
-                                            variant="link"
-                                            type="button"
-                                            className="!p-0 h-[unset]"
-                                            onClick={() =>
-                                                form.setValue(
-                                                    "url",
-                                                    window.document.location
-                                                        .href,
-                                                )
-                                            }
-                                        >
-                                            Use current tab
-                                        </Button>
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             <Button
                                 type="submit"
                                 className="w-full"
@@ -159,20 +121,20 @@ export const AddLinkDialog: FC<{ aggregator: SidepageAggregator }> = ({
                                 )}
                                 Add
                             </Button>
-                            <DialogClose asChild={true}>
+                            <DrawerClose asChild={true}>
                                 <Button
                                     type="reset"
-                                    variant="link"
+                                    variant="outline"
                                     className="w-full"
                                     disabled={loading}
                                 >
                                     Cancel
                                 </Button>
-                            </DialogClose>
+                            </DrawerClose>
                         </div>
                     </form>
                 </Form>
-            </DialogContent>
-        </Dialog>
+            </DrawerContent>
+        </Drawer>
     );
 };

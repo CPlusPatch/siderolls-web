@@ -1,3 +1,5 @@
+"use client";
+
 import { Aside } from "@/components/navbar";
 import {
     Breadcrumb,
@@ -8,11 +10,29 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import type { FC, ReactNode } from "react";
+import { type FC, type ReactNode, useEffect, useState } from "react";
+
+const useDarkMode = () => {
+    const [darkMode, setDarkMode] = useState(true);
+
+    useEffect(() => {
+        if (darkMode) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    }, [darkMode]);
+
+    return [darkMode, setDarkMode] as const;
+};
 
 const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
+    const [darkMode, setDarkMode] = useDarkMode();
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <Aside />
@@ -37,16 +57,30 @@ const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <div className="relative ml-auto flex-1 md:grow-0">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Search..."
-                            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-                        />
+                    <div className="ml-auto md:grow-0 flex-1 flex-row flex gap-x-3">
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="dark-mode"
+                                defaultChecked={darkMode}
+                                onCheckedChange={() =>
+                                    setDarkMode((prev) => !prev)
+                                }
+                            />
+                            <Label htmlFor="dark-mode" className="sr-only">
+                                Toggle dark mode
+                            </Label>
+                        </div>
+                        <div className="relative ml-auto flex-1">
+                            <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Search..."
+                                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+                            />
+                        </div>
                     </div>
                 </header>
-                <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+                <main className="grid flex-1 items-start gap-4 p-2 sm:px-6 sm:py-0 md:gap-8">
                     {children}
                 </main>
             </div>

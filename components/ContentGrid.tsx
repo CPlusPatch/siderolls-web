@@ -28,7 +28,7 @@ export const ContentGridItem: FC<
     return (
         <Card className="grid grid-cols-[auto_1fr_auto] gap-4 p-4">
             <CardContent className="p-0">
-                <Avatar className="overflow-hidden size-14 rounded ring-ring/5 ring-1 relative">
+                <Avatar className="overflow-hidden size-20 rounded ring-ring/5 ring-1 relative">
                     <AvatarImage
                         src={item.type === "link" ? item.image : ""}
                         alt=""
@@ -36,11 +36,11 @@ export const ContentGridItem: FC<
                     <AvatarFallback className="animate-pulse rounded-none" />
                 </Avatar>
             </CardContent>
-            <div className="flex flex-col justify-around overflow-hidden text-ellipsis">
-                <CardTitle className="text-base font-semibold text-foreground">
+            <div className="flex flex-col justify-around overflow-hidden text-ellipsis max-h-20">
+                <CardTitle className="text-base font-semibold text-foreground line-clamp-1">
                     {item.title}
                 </CardTitle>
-                <CardDescription className="text-sm text-secondary-foreground line-clamp-1">
+                <CardDescription className="text-sm text-muted-foreground line-clamp-2">
                     {item.description}
                 </CardDescription>
             </div>
@@ -70,7 +70,7 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
     onEdit,
 }) => {
     return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {items.map((item) => (
                 <ContentGridItem
                     key={item.id}

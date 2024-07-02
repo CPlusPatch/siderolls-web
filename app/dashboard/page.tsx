@@ -1,69 +1,101 @@
 "use client";
 
 import {
-    SidepageAggregator,
+    aggregator,
     useContent,
     useSidepages,
 } from "@/classes/aggregator/content-aggregator";
 import { ContentGrid } from "@/components/ContentGrid";
-import { AddLinkDialog } from "@/components/forms/AddLink";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { type FC, useEffect, useRef, useState } from "react";
-
-const aggregator = new SidepageAggregator();
-
-const useDarkMode = () => {
-    const [darkMode, setDarkMode] = useState(true);
-
-    useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-        }
-    }, [darkMode]);
-
-    return [darkMode, setDarkMode] as const;
-};
+import { AddContentForm } from "@/components/forms/AddContent";
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { File, ListFilter, PlusCircle } from "lucide-react";
+import type { FC } from "react";
 
 const DashboardMain: FC = () => {
-    const mainRef = useRef<HTMLDivElement>(null);
-    const [darkMode, setDarkMode] = useDarkMode();
     const content = useContent(aggregator);
     const sidepages = useSidepages(aggregator);
 
     return (
-        <div className="p-4 flex flex-col gap-y-4 w-full h-dvh overflow-hidden">
-            <header className="flex flex-row border-b justify-between items-center">
-                <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-                    Tree Test
-                </h1>
-                <div className="flex items-center space-x-2">
-                    <Switch
-                        id="dark-mode"
-                        defaultChecked={darkMode}
-                        onCheckedChange={() => setDarkMode((prev) => !prev)}
-                    />
-                    <Label htmlFor="dark-mode" className="sr-only">
-                        Airplane Mode
-                    </Label>
+        <div className="p-4 flex flex-col gap-y-4 w-full h-full overflow-hidden">
+            <Tabs defaultValue="all">
+                <div className="flex items-center">
+                    <TabsList>
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        <TabsTrigger value="active">Active</TabsTrigger>
+                        <TabsTrigger value="draft">Draft</TabsTrigger>
+                        <TabsTrigger
+                            value="archived"
+                            className="hidden sm:flex"
+                        >
+                            Archived
+                        </TabsTrigger>
+                    </TabsList>
+                    <div className="ml-auto flex items-center gap-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild={true}>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 gap-1"
+                                >
+                                    <ListFilter className="h-3.5 w-3.5" />
+                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                        Sort
+                                    </span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuCheckboxItem checked={true}>
+                                    Date
+                                </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem>
+                                    Title
+                                </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem>
+                                    Type
+                                </DropdownMenuCheckboxItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 gap-1"
+                        >
+                            <File className="h-3.5 w-3.5" />
+                            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                Export
+                            </span>
+                        </Button>
+                        <AddContentForm>
+                            <Button size="sm" className="h-8 gap-1">
+                                <PlusCircle className="h-3.5 w-3.5" />
+                                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                    Add Content
+                                </span>
+                            </Button>
+                        </AddContentForm>
+                    </div>
                 </div>
-            </header>
-            {/* <div className="grid grid-cols-[1fr_auto] gap-2">
-                <SidepageSelector sidepages={sidepages} />
-                <SidepageCreator aggregator={aggregator} />
-            </div> */}
-            <AddLinkDialog aggregator={aggregator} />
-            <main className="grow" ref={mainRef}>
-                {/*  <ContentTree aggregator={aggregator} /> */}
-                <ContentGrid
-                    items={content}
-                    onDelete={(id) => {
-                        aggregator.removeContentItem(sidepages[0]?.id, id);
-                    }}
-                />
-            </main>
+                <TabsContent value="all" className="py-4">
+                    <ContentGrid
+                        items={content}
+                        onDelete={(id) => {
+                            aggregator.removeContentItem(sidepages[0]?.id, id);
+                        }}
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

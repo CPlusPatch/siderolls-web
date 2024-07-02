@@ -262,3 +262,5 @@ export class DriverFactory {
         }
     }
 }
+
+export const aggregator = new SidepageAggregator();

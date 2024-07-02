@@ -53,7 +53,7 @@ export class UserLinkDriver implements ContentDriver {
         return {
             id: nanoid(),
             type: "link",
-            title: rawData.title || rawData.url,
+            title: rawData.title || metadata.title || rawData.url,
             dateAdded: new Date().toISOString(),
             url: rawData.url,
             description: metadata.description ?? "A user-provided link",

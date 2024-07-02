@@ -6,10 +6,10 @@ import {
 import {
     Home,
     LineChart,
+    Network,
     Package,
-    Package2,
     Settings,
-    ShoppingCart,
+    Text,
     Users2,
 } from "lucide-react";
 import Link from "next/link";
@@ -23,14 +23,14 @@ export const Aside: FC = () => {
                     href="#"
                     className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
                 >
-                    <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
-                    <span className="sr-only">Acme Inc</span>
+                    <Text className="h-4 w-4 transition-all group-hover:scale-110" />
+                    <span className="sr-only">Siderolls</span>
                 </Link>
                 <Tooltip>
                     <TooltipTrigger asChild={true}>
                         <Link
                             href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                            className="flex h-9 w-9 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                         >
                             <Home className="h-5 w-5" />
                             <span className="sr-only">Dashboard</span>
@@ -42,19 +42,19 @@ export const Aside: FC = () => {
                     <TooltipTrigger asChild={true}>
                         <Link
                             href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                            className="flex h-9 w-9 items-center justify-center rounded bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                         >
-                            <ShoppingCart className="h-5 w-5" />
-                            <span className="sr-only">Orders</span>
+                            <Network className="h-5 w-5" />
+                            <span className="sr-only">Network</span>
                         </Link>
                     </TooltipTrigger>
-                    <TooltipContent side="right">Orders</TooltipContent>
+                    <TooltipContent side="right">Network</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild={true}>
                         <Link
                             href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                            className="flex h-9 w-9 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                         >
                             <Package className="h-5 w-5" />
                             <span className="sr-only">Products</span>
@@ -66,19 +66,19 @@ export const Aside: FC = () => {
                     <TooltipTrigger asChild={true}>
                         <Link
                             href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                            className="flex h-9 w-9 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                         >
                             <Users2 className="h-5 w-5" />
-                            <span className="sr-only">Customers</span>
+                            <span className="sr-only">Users</span>
                         </Link>
                     </TooltipTrigger>
-                    <TooltipContent side="right">Customers</TooltipContent>
+                    <TooltipContent side="right">Users</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild={true}>
                         <Link
                             href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                            className="flex h-9 w-9 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                         >
                             <LineChart className="h-5 w-5" />
                             <span className="sr-only">Analytics</span>
@@ -92,7 +92,7 @@ export const Aside: FC = () => {
                     <TooltipTrigger asChild={true}>
                         <Link
                             href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                            className="flex h-9 w-9 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                         >
                             <Settings className="h-5 w-5" />
                             <span className="sr-only">Settings</span>
