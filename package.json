@@ -32,7 +32,7 @@
         "next": "15.0.0-rc.0",
         "react": "19.0.0-rc-f994737d14-20240522",
         "react-arborist": "^3.4.0",
-        "react-dom": "19.0.0-rc-f994737d14-20240522",
+        "react-dom": "19.0.0-rc.0",
         "react-hook-form": "^7.52.0",
         "react-parallax-tilt": "^1.7.229",
         "react-timeago-i18n": "^2.2.1",
