@@ -87,26 +87,12 @@ const DashboardMain: FC<{
                             <Button
                                 size="sm"
                                 className="h-8 gap-1"
-                                asChild={true}
                                 type="button"
                             >
-                                <a
-                                    ref={(node) => {
-                                        if (node) {
-                                            node.setAttribute(
-                                                "href",
-                                                `javascript:window.open("${window.location.origin}/sidepages/${params.id}?create=" + encodeURIComponent(window.location.href), "_blank")`,
-                                            );
-                                        }
-                                    }}
-                                    href="/"
-                                    onClick={(e) => e.preventDefault()}
-                                >
-                                    <PlusCircle className="h-3.5 w-3.5" />
-                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                        Add Content
-                                    </span>
-                                </a>
+                                <PlusCircle className="h-3.5 w-3.5" />
+                                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                    Add Content
+                                </span>
                             </Button>
                         </AddContentForm>
                     </div>
