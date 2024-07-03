@@ -6,6 +6,7 @@ import {
     useSidepages,
 } from "@/classes/aggregator/content-aggregator";
 import { ContentGrid } from "@/components/ContentGrid";
+import { CreateParamHandler } from "@/components/events/CreateParamHandler";
 import { AddContentForm } from "@/components/forms/AddContent";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ const DashboardMain: FC<{
 
     return (
         <div className="p-4 flex flex-col gap-y-4 w-full h-full overflow-hidden">
+            <CreateParamHandler sidepageId={params.id} />
             <Tabs defaultValue="all" className="flex flex-col grow">
                 <div className="flex items-center">
                     <TabsList>
@@ -82,11 +84,29 @@ const DashboardMain: FC<{
                             </span>
                         </Button>
                         <AddContentForm>
-                            <Button size="sm" className="h-8 gap-1">
-                                <PlusCircle className="h-3.5 w-3.5" />
-                                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                    Add Content
-                                </span>
+                            <Button
+                                size="sm"
+                                className="h-8 gap-1"
+                                asChild={true}
+                                type="button"
+                            >
+                                <a
+                                    ref={(node) => {
+                                        if (node) {
+                                            node.setAttribute(
+                                                "href",
+                                                `javascript:window.open("${window.location.origin}/sidepages/${params.id}?create=" + encodeURIComponent(window.location.href), "_blank")`,
+                                            );
+                                        }
+                                    }}
+                                    href="/"
+                                    onClick={(e) => e.preventDefault()}
+                                >
+                                    <PlusCircle className="h-3.5 w-3.5" />
+                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                        Add Content
+                                    </span>
+                                </a>
                             </Button>
                         </AddContentForm>
                     </div>

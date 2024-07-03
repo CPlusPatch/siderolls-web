@@ -50,7 +50,7 @@ export const ContentGridItem: FC<
                             />
                         </AvatarFallback>
                     </Avatar>
-                    <div className="space-y-1">
+                    <div className="space-y-1 break-all">
                         <CardTitle className="font-semibold text-base line-clamp-2">
                             {item.title}
                         </CardTitle>
@@ -58,7 +58,7 @@ export const ContentGridItem: FC<
                             <TimeAgo date={item.dateAdded} />
                         </p>
                     </div>
-                    <div>
+                    <div className="shrink-0">
                         <GridItemContextMenu
                             item={item}
                             onDelete={onDelete}

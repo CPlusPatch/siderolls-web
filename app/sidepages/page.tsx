@@ -62,8 +62,8 @@ const DashboardMain: FC = () => {
                             className="mt-4"
                             onClick={async () => {
                                 const { id } = await aggregator.createSidepage({
-                                    title: "New Sidepage",
-                                    description: "A new sidepage",
+                                    title: "Untitled Sidepage",
+                                    description: "An untitled sidepage",
                                     creator: "user",
                                     sidepoints: [],
                                 });
