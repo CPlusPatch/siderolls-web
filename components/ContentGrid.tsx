@@ -55,7 +55,7 @@ export const ContentGridItem: FC<
                             {item.title}
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">
-                            <TimeAgo date={item.dateAdded} />
+                            <TimeAgo date={item.created_at} />
                         </p>
                     </div>
                     <div className="shrink-0">
@@ -78,16 +78,18 @@ interface GridProps {
 interface ContentItemActions {
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
+    sort?: (a: ContentItem, b: ContentItem) => number;
 }
 
 export const ContentGrid: FC<GridProps & ContentItemActions> = ({
     items,
     onDelete,
     onEdit,
+    sort,
 }) => {
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.map((item) => (
+            {items.toSorted(sort).map((item) => (
                 <ContentGridItem
                     key={item.id}
                     item={item}

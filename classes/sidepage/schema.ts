@@ -3,11 +3,11 @@ export interface Sidepage {
     title: string;
     description?: string;
     creator: string;
-    dateCreated: string;
-    dateModified: string;
+    created_at: string;
+    updated_at: string;
     sidepoints: string[]; // URIs where this sidepage is pinned
     content: ContentItem[];
-    parentId?: string; // ID of the parent sidepage, if any
+    parent?: string; // ID of the parent sidepage, if any
 }
 
 export type ContentItem =
@@ -24,7 +24,7 @@ export interface BaseContent {
     type: string;
     title: string;
     description?: string;
-    dateAdded: string;
+    created_at: string;
     tags?: string[];
 }
 
@@ -77,5 +77,5 @@ export interface CustomContent extends BaseContent {
 
 export interface NestedSidepage extends BaseContent {
     type: "sidepage";
-    sidepageId: string; // Reference to the full sidepage
+    sidepage: string; // Reference to the full sidepage
 }

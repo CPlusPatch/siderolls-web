@@ -27,7 +27,7 @@ export class UserMediaDriver implements ContentDriver {
             id: nanoid(),
             type: "media",
             title: rawData.title || rawData.file.name,
-            dateAdded: new Date().toISOString(),
+            created_at: new Date().toISOString(),
             url: URL.createObjectURL(rawData.file),
             format: rawData.file.type.split("/")[1],
             mediaType: (() => {

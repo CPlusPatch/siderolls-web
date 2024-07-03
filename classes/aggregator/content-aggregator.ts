@@ -81,14 +81,14 @@ export class SidepageAggregator {
     createSidepage(
         sidepage: Omit<
             Sidepage,
-            "id" | "dateCreated" | "dateModified" | "content"
+            "id" | "created_at" | "updated_at" | "content"
         >,
     ): Promise<Sidepage> {
         const newSidepage: Sidepage = {
             ...sidepage,
             id: nanoid(),
-            dateCreated: new Date().toISOString(),
-            dateModified: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
             content: [],
         };
 
@@ -106,7 +106,7 @@ export class SidepageAggregator {
      */
     addContentToSidepage(
         sidepageId: string,
-        contentItem: Omit<ContentItem, "id" | "dateAdded">,
+        contentItem: Omit<ContentItem, "id" | "created_at">,
     ): Promise<void> {
         const allData = this.getAllData();
         const sidepage = allData[sidepageId];
@@ -117,11 +117,11 @@ export class SidepageAggregator {
         const newContentItem: ContentItem = {
             ...(contentItem as ContentItem),
             id: nanoid(),
-            dateAdded: new Date().toISOString(),
+            created_at: new Date().toISOString(),
         };
 
         sidepage.content.push(newContentItem);
-        sidepage.dateModified = new Date().toISOString();
+        sidepage.updated_at = new Date().toISOString();
         this.saveAllData(allData);
         return Promise.resolve();
     }
@@ -176,7 +176,7 @@ export class SidepageAggregator {
             sidepage.content = sidepage.content.filter(
                 (item) => item.id !== contentItemId,
             );
-            sidepage.dateModified = new Date().toISOString();
+            sidepage.updated_at = new Date().toISOString();
             this.saveAllData(allData);
         }
 

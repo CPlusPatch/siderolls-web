@@ -8,17 +8,12 @@ import {
 import { ContentGrid } from "@/components/ContentGrid";
 import { CreateParamHandler } from "@/components/events/CreateParamHandler";
 import { AddContentForm } from "@/components/forms/AddContent";
+import { SortDropdown } from "@/components/forms/SortDropdown";
+import { ClientOnly } from "@/components/lib/ClientOnly";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { File, ListFilter, PlusCircle } from "lucide-react";
+import { useLocalStorage } from "@uidotdev/usehooks";
+import { File, PlusCircle } from "lucide-react";
 import type { FC } from "react";
 
 const DashboardMain: FC<{
@@ -28,6 +23,13 @@ const DashboardMain: FC<{
 }> = ({ params }) => {
     const content = useContent(aggregator, params.id);
     const sidepages = useSidepages(aggregator);
+    const [sortedValue, setSortedValue] = useLocalStorage<
+        "created_at" | "type" | "title"
+    >(`sidepage:${params.id}:sort_type`, "created_at");
+    const [sortDirection, setSortDirection] = useLocalStorage<"asc" | "desc">(
+        `sidepage:${params.id}:sort_direction`,
+        "desc",
+    );
 
     return (
         <div className="p-4 flex flex-col gap-y-4 w-full h-full overflow-hidden">
@@ -46,33 +48,14 @@ const DashboardMain: FC<{
                         </TabsTrigger>
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild={true}>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 gap-1"
-                                >
-                                    <ListFilter className="h-3.5 w-3.5" />
-                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                        Sort
-                                    </span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuCheckboxItem checked={true}>
-                                    Date
-                                </DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem>
-                                    Title
-                                </DropdownMenuCheckboxItem>
-                                <DropdownMenuCheckboxItem>
-                                    Type
-                                </DropdownMenuCheckboxItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <SortDropdown
+                            defaultValue={sortedValue}
+                            defaultDirection={sortDirection}
+                            onChange={(value, direction) => {
+                                setSortedValue(value);
+                                setSortDirection(direction);
+                            }}
+                        />
                         <Button
                             size="sm"
                             variant="outline"
@@ -101,6 +84,26 @@ const DashboardMain: FC<{
                     {content.length > 0 ? (
                         <ContentGrid
                             items={content}
+                            sort={(a, b) => {
+                                if (sortedValue === "created_at") {
+                                    return sortDirection === "asc"
+                                        ? new Date(a.created_at).getTime() -
+                                              new Date(b.created_at).getTime()
+                                        : new Date(b.created_at).getTime() -
+                                              new Date(a.created_at).getTime();
+                                }
+                                if (sortedValue === "title") {
+                                    return sortDirection === "asc"
+                                        ? a.title.localeCompare(b.title)
+                                        : b.title.localeCompare(a.title);
+                                }
+                                if (sortedValue === "type") {
+                                    return sortDirection === "asc"
+                                        ? a.type.localeCompare(b.type)
+                                        : b.type.localeCompare(a.type);
+                                }
+                                return 0;
+                            }}
                             onDelete={(id) => {
                                 aggregator.removeContentItem(
                                     sidepages[0]?.id,
@@ -127,4 +130,16 @@ const DashboardMain: FC<{
     );
 };
 
-export default DashboardMain;
+const ClientWrapper: FC<{
+    params: {
+        id: string;
+    };
+}> = ({ params }) => {
+    return (
+        <ClientOnly>
+            <DashboardMain params={params} />
+        </ClientOnly>
+    );
+};
+
+export default ClientWrapper;

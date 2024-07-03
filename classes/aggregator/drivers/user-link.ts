@@ -54,7 +54,7 @@ export class UserLinkDriver implements ContentDriver {
             id: nanoid(),
             type: "link",
             title: rawData.title || metadata.title || rawData.url,
-            dateAdded: new Date().toISOString(),
+            created_at: new Date().toISOString(),
             url: rawData.url,
             description: metadata.description ?? "A user-provided link",
             image: metadata.image?.url,
