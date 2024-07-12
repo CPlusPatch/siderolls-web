@@ -5,7 +5,7 @@ export interface Sidepage {
     creator: string;
     created_at: string;
     updated_at: string;
-    sidepoints: string[]; // URIs where this sidepage is pinned
+    associated: string[]; // URIs associated with this sidepage (Sidepoints)
     content: ContentItem[];
     parent?: string; // ID of the parent sidepage, if any
 }

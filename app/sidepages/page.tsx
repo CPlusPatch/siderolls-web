@@ -65,7 +65,7 @@ const DashboardMain: FC = () => {
                                     title: "Untitled Sidepage",
                                     description: "An untitled sidepage",
                                     creator: "user",
-                                    sidepoints: [],
+                                    associated: [],
                                 });
                                 router.push(`/sidepages/${id}`);
                             }}

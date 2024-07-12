@@ -41,7 +41,7 @@ export const SidepageCreator: FC<{ aggregator: SidepageAggregator }> = ({
             title: "New Sidepage",
             description: "A new sidepage",
             creator: "user",
-            sidepoints: [],
+            associated: [],
         });
     };
 
