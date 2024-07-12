@@ -86,7 +86,7 @@ interface SidepageRendererProps {
     onDelete?: (id: string) => void;
 }
 
-export const SidepageRenderer: FC<SidepageRendererProps> = ({
+const SidepageRenderer: FC<SidepageRendererProps> = ({
     sidepage,
     onEdit,
     onDelete,
@@ -167,7 +167,7 @@ const SidepageContextMenu: FC<SidepageRendererProps> = ({
     );
 };
 
-export const SidepageSkeleton: FC = () => (
+const SidepageSkeleton: FC = () => (
     <SidepageRenderer
         sidepage={{
             id: "",
