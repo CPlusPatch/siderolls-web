@@ -211,10 +211,13 @@ export class SidepageAggregator {
  */
 export function useSidepages(aggregator: SidepageAggregator) {
     const [sidepages, setSidepages] = useState<Sidepage[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const fetchSidepages = useCallback(async () => {
+        setLoading(true);
         const newSidepages = await aggregator.fetchAllSidepages();
         setSidepages(newSidepages);
+        setLoading(false);
     }, [aggregator]);
 
     useEffect(() => {
@@ -223,7 +226,7 @@ export function useSidepages(aggregator: SidepageAggregator) {
         return () => aggregator.removeListener(fetchSidepages);
     }, [aggregator, fetchSidepages]);
 
-    return sidepages;
+    return { sidepages, loading };
 }
 
 /**

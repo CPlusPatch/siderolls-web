@@ -3,7 +3,6 @@
 import {
     aggregator,
     useContent,
-    useSidepages,
 } from "@/classes/aggregator/content-aggregator";
 import { ContentGrid } from "@/components/ContentGrid";
 import { CreateParamHandler } from "@/components/events/CreateParamHandler";
@@ -22,7 +21,6 @@ const DashboardMain: FC<{
     };
 }> = ({ params }) => {
     const content = useContent(aggregator, params.id);
-    const sidepages = useSidepages(aggregator);
     const [sortedValue, setSortedValue] = useLocalStorage<
         "created_at" | "type" | "title"
     >(`sidepage:${params.id}:sort_type`, "created_at");
@@ -66,7 +64,7 @@ const DashboardMain: FC<{
                                 Export
                             </span>
                         </Button>
-                        <AddContentForm>
+                        <AddContentForm sidepageId={params.id}>
                             <Button
                                 size="sm"
                                 className="h-8 gap-1"
@@ -105,10 +103,7 @@ const DashboardMain: FC<{
                                 return 0;
                             }}
                             onDelete={(id) => {
-                                aggregator.removeContentItem(
-                                    sidepages[0]?.id,
-                                    id,
-                                );
+                                aggregator.removeContentItem(params.id, id);
                             }}
                         />
                     ) : (

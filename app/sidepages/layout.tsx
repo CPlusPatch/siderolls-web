@@ -4,7 +4,9 @@ import {
     aggregator,
     useSidepages,
 } from "@/classes/aggregator/content-aggregator";
+import type { ContentItem } from "@/classes/sidepage/schema";
 import { Aside } from "@/components/navbar";
+import { ThemeToggle } from "@/components/theme-trigger";
 import {
     Breadcrumb,
     BreadcrumbEllipsis,
@@ -14,6 +16,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,30 +24,75 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { type FC, type ReactNode, useEffect, useState } from "react";
+import type { FC, ReactNode } from "react";
 
-const useDarkMode = () => {
-    const [darkMode, setDarkMode] = useState(true);
-
-    useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-        }
-    }, [darkMode]);
-
-    return [darkMode, setDarkMode] as const;
-};
+const sampleContent: ContentItem[] = [
+    {
+        id: "UrNgNgSkfNhxQHmB76RRq",
+        type: "link",
+        title: "Garbage Trucks: The Ultimate Compilation",
+        created_at: "2024-07-12T14:49:12.911Z",
+        url: "https://www.youtube.com/watch?v=UluH0QmnwfM",
+        description:
+            "Long story short, here is one clip each of every single truck that I’ve filmed (during daylight hours) from August of 2015 through May of 2017, over 135 diff…",
+        image: "https://img.youtube.com/vi/UluH0QmnwfM/maxresdefault.jpg",
+    },
+    {
+        id: "r2__usI9RtcvVmhkWqVhI",
+        type: "link",
+        title: "Massachusetts child diagnosed with Cystic Fibrosis fulfills dream of becoming a garbage truck driver",
+        created_at: "2024-07-12T14:49:40.836Z",
+        url: "https://www.yahoo.com/news/massachusetts-child-diagnosed-cystic-fibrosis-210600933.html",
+        description:
+            "A Massachusetts 4-year-old, who was diagnosed with Cystic Fibrosis got to fulfill his dream of becoming a garbage truck driver for a day thanks to Make-A-Wish Massachusetts and Rhode Island.",
+        image: "https://media.zenfs.com/en/wpri-providence/0d244531637232d70e6b89dc8c90dbc1",
+    },
+    {
+        id: "yo1bqkoXYOGcJ-UZGAtKA",
+        type: "link",
+        title: "Mayor Adams Unveils New Anti-Trash Technology, Launches Next Phase Of City’s War On Trash",
+        created_at: "2024-07-12T14:49:59.149Z",
+        url: "https://www.nyc.gov/office-of-the-mayor/news/089-24/mayor-adams-new-anti-trash-technology-launches-next-phase-city-s-war-trash",
+        description:
+            "New York City Mayor Eric Adams and New York City Department of Sanitation (DSNY) Commissioner Jessica Tisch today made two major announcements…",
+        image: "http://www.nyc.gov/assets/home/images/press_release/2024/02/pr089-24-hero.jpg",
+    },
+    {
+        id: "opXndcSo2izj3zNpMA8Da",
+        type: "link",
+        title: "Amazon.com: Maxx Action 19’’ 3-N-1 Maxx Recycler – Large Garbage Truck Toy with Lights, Sounds and Motorized Drive | Realistic Trash Truck with Dual Joystick Controllers - Sunny Days Entertainment | Green : Toys & Games",
+        created_at: "2024-07-12T14:55:22.943Z",
+        url: "https://www.amazon.com/Sunny-Days-Entertainment-Action-Recycler/dp/B0CBCWTC6P/",
+        description:
+            "Amazon.com: Maxx Action 19’’ 3-N-1 Maxx Recycler – Large Garbage Truck Toy with Lights, Sounds and Motorized Drive | Realistic Trash Truck with Dual Joystick Controllers - Sunny Days Entertainment | Green : Toys & Games",
+        image: "https://images-na.ssl-images-amazon.com/images/I/81uXMYM1EUL.jpg",
+    },
+    {
+        id: "T1KtMKqdtInpN-Jtqh9p7",
+        type: "link",
+        title: "Garbage truck - Wikipedia",
+        created_at: "2024-07-12T14:58:06.475Z",
+        url: "https://en.wikipedia.org/wiki/Garbage_truck",
+        description: "From Wikipedia, the free encyclopedia",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/LA-City-Sanitation-trash-truck-1.jpg/1200px-LA-City-Sanitation-trash-truck-1.jpg",
+    },
+    {
+        id: "eXc92ZUe715lnMXXuBxWg",
+        type: "link",
+        title: "Dumpster Rentals for Less | Budget Dumpster",
+        created_at: "2024-07-12T14:58:34.025Z",
+        url: "https://www.budgetdumpster.com/",
+        description:
+            "Budget Dumpster specializes in local dumpster rentals for homeowners and contractors alike. Call us to rent a dumpster in your area.",
+        image: "http://budgetdumpster.com/images/budget-dumpster-homepage-opengraph.jpg",
+    },
+];
 
 const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
-    const [darkMode, setDarkMode] = useDarkMode();
-    const sidepages = useSidepages(aggregator);
+    const { sidepages } = useSidepages(aggregator);
     const params = useParams();
 
     return (
@@ -102,18 +150,30 @@ const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
                             )}
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <div className="ml-auto md:grow-0 flex-1 flex-row flex gap-x-3">
-                        <div className="flex items-center space-x-2">
-                            <Switch
-                                id="dark-mode"
-                                defaultChecked={darkMode}
-                                onCheckedChange={() =>
-                                    setDarkMode((prev) => !prev)
+                    <div className="ml-auto md:grow-0 flex-1 flex-row flex gap-x-3 items-center">
+                        <Button
+                            size="sm"
+                            onClick={async () => {
+                                const { id } = await aggregator.createSidepage({
+                                    title: "Garbage Trucks",
+                                    description:
+                                        "All the photos of garbage trucks",
+                                    creator: "user",
+                                    associated: [],
+                                });
+
+                                for (const content of sampleContent) {
+                                    await aggregator.addContentToSidepage(
+                                        id,
+                                        content,
+                                    );
                                 }
-                            />
-                            <Label htmlFor="dark-mode" className="sr-only">
-                                Toggle dark mode
-                            </Label>
+                            }}
+                        >
+                            Add dummy data
+                        </Button>
+                        <div className="flex items-center space-x-2">
+                            <ThemeToggle />
                         </div>
                         <div className="relative ml-auto flex-1">
                             <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />

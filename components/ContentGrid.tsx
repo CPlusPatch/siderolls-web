@@ -50,7 +50,7 @@ export const ContentGridItem: FC<
                             />
                         </AvatarFallback>
                     </Avatar>
-                    <div className="space-y-1 break-all">
+                    <div className="space-y-1 break-words overflow-hidden">
                         <CardTitle className="font-semibold text-base line-clamp-2">
                             {item.title}
                         </CardTitle>

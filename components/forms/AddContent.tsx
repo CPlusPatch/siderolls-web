@@ -35,7 +35,8 @@ const contentTypes: {
 
 export const AddContentForm: FC<{
     children?: ReactNode;
-}> = ({ children }) => {
+    sidepageId: string;
+}> = ({ children, sidepageId }) => {
     const [openChild, setOpenChild] = useState(false);
     const [open, setOpen] = useState(false);
     const [type, setType] = useState<ContentItem["type"] | null>(null);
@@ -77,6 +78,7 @@ export const AddContentForm: FC<{
                 open={openChild && type === "link"}
                 setOpen={setOpenChild}
                 onAdd={() => setOpen(false)}
+                sidepageId={sidepageId}
             />
         </Drawer>
     );
@@ -86,4 +88,5 @@ export interface ContentAdderProps {
     onAdd?: (type: ContentItem["type"]) => void;
     setOpen: (open: boolean) => void;
     open: boolean;
+    sidepageId: string;
 }

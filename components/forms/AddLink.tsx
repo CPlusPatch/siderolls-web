@@ -48,6 +48,7 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
     open,
     setOpen,
     onAdd,
+    sidepageId,
 }) => {
     const [loading, setLoading] = useState(false);
 
@@ -58,8 +59,7 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
             url: values.url,
             title: values.title,
         });
-        const sidepages = await aggregator.fetchAllSidepages();
-        await aggregator.addContentToSidepage(sidepages[0].id, content);
+        await aggregator.addContentToSidepage(sidepageId, content);
         form.reset();
         setLoading(false);
         setOpen(false);
