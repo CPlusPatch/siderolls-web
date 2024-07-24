@@ -26,18 +26,18 @@
         "@uidotdev/usehooks": "^2.4.1",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
-        "framer-motion": "^11.3.2",
-        "lucide-react": "^0.408.0",
+        "framer-motion": "^11.3.12",
+        "lucide-react": "^0.414.0",
         "mitt": "^3.0.1",
         "nanoid": "^5.0.7",
-        "next": "^15.0.0-rc.0",
+        "next": "^15.0.0-canary.79",
         "next-themes": "^0.3.0",
-        "react": "^19.0.0-rc-85acf2d195-20240711",
+        "react": "^19.0.0-rc-fb9a90fa48-20240614",
         "react-arborist": "^3.4.0",
-        "react-dom": "^19.0.0-rc-85acf2d195-20240711",
+        "react-dom": "^19.0.0-rc-fb9a90fa48-20240614",
         "react-hook-form": "^7.52.1",
         "react-loading-skeleton": "^3.4.0",
-        "react-parallax-tilt": "^1.7.232",
+        "react-parallax-tilt": "^1.7.233",
         "react-timeago-i18n": "^2.2.1",
         "tailwind-merge": "^2.4.0",
         "tailwindcss-animate": "^1.0.7",
@@ -45,17 +45,22 @@
         "vaul": "^0.9.1",
         "zod": "^3.23.8"
     },
+    "overrides": {
+        "react": "^19.0.0-rc-fb9a90fa48-20240614",
+        "react-dom": "^19.0.0-rc-fb9a90fa48-20240614",
+        "next": "^15.0.0-canary.79"
+    },
     "devDependencies": {
-        "typescript": "^5.5.3",
-        "@types/node": "^20.14.10",
+        "typescript": "^5.5.4",
+        "@types/node": "^20.14.12",
         "@types/react": "^18.3.3",
         "@types/react-dom": "^18.3.0",
         "postcss": "^8.4.39",
-        "tailwindcss": "^3.4.4",
+        "tailwindcss": "^3.4.6",
         "@biomejs/biome": "^1.8.3",
         "@iconify-icon/react": "^2.1.0",
         "@tailwindcss/forms": "^0.5.7",
         "@tailwindcss/typography": "^0.5.13"
     },
-    "trustedDependencies": ["@biomejs/biome"]
+    "trustedDependencies": ["@biomejs/biome", "sharp"]
 }
