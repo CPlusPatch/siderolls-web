@@ -1,37 +1,23 @@
 "use client";
 
-import {
-    aggregator,
-    useContent,
-} from "@/classes/aggregator/content-aggregator";
-import { ContentGrid } from "@/components/ContentGrid";
-import { CreateParamHandler } from "@/components/events/CreateParamHandler";
+import { ContentGrid, type ContentItem } from "@/components/ContentGrid";
 import { AddContentForm } from "@/components/forms/AddContent";
 import { SortDropdown } from "@/components/forms/SortDropdown";
-import { ClientOnly } from "@/components/lib/ClientOnly";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLocalStorage } from "@uidotdev/usehooks";
 import { File, PlusCircle } from "lucide-react";
-import type { FC } from "react";
+import { type FC, useState } from "react";
 
-const DashboardMain: FC<{
-    params: {
-        id: string;
-    };
-}> = ({ params }) => {
-    const content = useContent(aggregator, params.id);
-    const [sortedValue, setSortedValue] = useLocalStorage<
+const FeedMain: FC = () => {
+    const content: ContentItem[] = [];
+    const [sortedValue, setSortedValue] = useState<
         "created_at" | "type" | "title"
-    >(`sidepage:${params.id}:sort_type`, "created_at");
-    const [sortDirection, setSortDirection] = useLocalStorage<"asc" | "desc">(
-        `sidepage:${params.id}:sort_direction`,
-        "desc",
-    );
+    >("created_at");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+    const authenticated = true;
 
     return (
         <div className="p-4 flex flex-col gap-y-4 w-full h-full overflow-hidden">
-            <CreateParamHandler sidepageId={params.id} />
             <Tabs defaultValue="all" className="flex flex-col grow">
                 <div className="flex items-center">
                     <TabsList>
@@ -64,18 +50,20 @@ const DashboardMain: FC<{
                                 Export
                             </span>
                         </Button>
-                        <AddContentForm sidepageId={params.id}>
-                            <Button
-                                size="sm"
-                                className="h-8 gap-1"
-                                type="button"
-                            >
-                                <PlusCircle className="h-3.5 w-3.5" />
-                                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                    Add Content
-                                </span>
-                            </Button>
-                        </AddContentForm>
+                        {authenticated && (
+                            <AddContentForm>
+                                <Button
+                                    size="sm"
+                                    className="h-8 gap-1"
+                                    type="button"
+                                >
+                                    <PlusCircle className="h-3.5 w-3.5" />
+                                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                        Add Content
+                                    </span>
+                                </Button>
+                            </AddContentForm>
+                        )}
                     </div>
                 </div>
                 <TabsContent value="all" className="py-4 h-full">
@@ -102,9 +90,6 @@ const DashboardMain: FC<{
                                 }
                                 return 0;
                             }}
-                            onDelete={(id) => {
-                                aggregator.removeContentItem(params.id, id);
-                            }}
                         />
                     ) : (
                         <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm w-full h-full">
@@ -113,8 +98,10 @@ const DashboardMain: FC<{
                                     It's empty here
                                 </h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Press the "Add Content" button to get
-                                    started
+                                    {authenticated
+                                        ? `Press the "Add Content" button to get
+                                        started`
+                                        : "This feed has no content. Come back later for updates."}
                                 </p>
                             </div>
                         </div>
@@ -125,16 +112,4 @@ const DashboardMain: FC<{
     );
 };
 
-const ClientWrapper: FC<{
-    params: {
-        id: string;
-    };
-}> = ({ params }) => {
-    return (
-        <ClientOnly>
-            <DashboardMain params={params} />
-        </ClientOnly>
-    );
-};
-
-export default ClientWrapper;
+export default FeedMain;

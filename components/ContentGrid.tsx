@@ -1,4 +1,3 @@
-import type { ContentItem } from "@/classes/sidepage/schema";
 import { CardTitle } from "@/components/ui/card";
 import { Icon } from "@iconify-icon/react";
 import { Edit, Trash } from "lucide-react";
@@ -16,6 +15,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TimeAgo from "react-timeago-i18n";
+
+export type ContentItem = {
+    id: string;
+    type: "link" | "media";
+    title: string;
+    created_at: string;
+    url: string;
+    description: string;
+    image?: string;
+};
 
 export const ContentGridItem: FC<
     { item: ContentItem } & ContentItemActions

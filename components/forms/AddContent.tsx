@@ -1,6 +1,5 @@
 "use client";
 
-import type { ContentItem } from "@/classes/sidepage/schema";
 import { Button } from "@/components/ui/button";
 import {
     Drawer,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/drawer";
 import { Image, Link, type SVGAttributes } from "lucide-react";
 import { type ComponentType, type FC, type ReactNode, useState } from "react";
+import type { ContentItem } from "../ContentGrid";
 import { AddLinkDialog } from "./AddLink";
 
 const contentTypes: {
@@ -35,8 +35,7 @@ const contentTypes: {
 
 export const AddContentForm: FC<{
     children?: ReactNode;
-    sidepageId: string;
-}> = ({ children, sidepageId }) => {
+}> = ({ children }) => {
     const [openChild, setOpenChild] = useState(false);
     const [open, setOpen] = useState(false);
     const [type, setType] = useState<ContentItem["type"] | null>(null);
@@ -78,7 +77,6 @@ export const AddContentForm: FC<{
                 open={openChild && type === "link"}
                 setOpen={setOpenChild}
                 onAdd={() => setOpen(false)}
-                sidepageId={sidepageId}
             />
         </Drawer>
     );
@@ -88,5 +86,4 @@ export interface ContentAdderProps {
     onAdd?: (type: ContentItem["type"]) => void;
     setOpen: (open: boolean) => void;
     open: boolean;
-    sidepageId: string;
 }

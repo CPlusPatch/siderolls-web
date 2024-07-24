@@ -1,7 +1,5 @@
 "use client";
 
-import { aggregator } from "@/classes/aggregator/content-aggregator";
-import { UserLinkDriver } from "@/classes/aggregator/drivers/user-link";
 import { Button } from "@/components/ui/button";
 import {
     Drawer,
@@ -48,18 +46,13 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
     open,
     setOpen,
     onAdd,
-    sidepageId,
 }) => {
     const [loading, setLoading] = useState(false);
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // biome-ignore lint/style/useNamingConvention: <explanation>
+    const onSubmit = (_: z.infer<typeof formSchema>) => {
         setLoading(true);
-        const driver = new UserLinkDriver();
-        const content = await driver.parseContent({
-            url: values.url,
-            title: values.title,
-        });
-        await aggregator.addContentToSidepage(sidepageId, content);
+        // TODO: Add link
         form.reset();
         setLoading(false);
         setOpen(false);
