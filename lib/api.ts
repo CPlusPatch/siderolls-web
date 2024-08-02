@@ -28,7 +28,7 @@ const createApiClient = (config: ApiConfig) => {
 
     return {
         getAllRows: () => fetchJson<DataRow[]>("/api/v1/rows"),
-        getRowById: (id: number) => fetchJson<DataRow>(`/api/rows/${id}`),
+        getRowById: (id: string) => fetchJson<DataRow>(`/api/rows/${id}`),
     };
 };
 
@@ -53,7 +53,7 @@ export const useApi = () => {
     return {
         // biome-ignore lint/correctness/useHookAtTopLevel: Biome is incorrect here
         useGetAllRows: () => useSWR("rows", apiClient.getAllRows),
-        useGetRowById: (id: number) =>
+        useGetRowById: (id: string) =>
             // biome-ignore lint/correctness/useHookAtTopLevel: Biome is incorrect here
             useSWR(["row", id], () => apiClient.getRowById(id)),
     };

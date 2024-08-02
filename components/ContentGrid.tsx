@@ -15,6 +15,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { DataRow } from "@/lib/api";
+import { Masonry } from "masonic";
+import Link from "next/link";
 import TimeAgo from "react-timeago-i18n";
 
 export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
@@ -24,13 +26,13 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
 }) => {
     return (
         <>
-            <div className="space-y-4">
-                <div className="rounded-lg border bg-card text-card-foreground shadow-sm aspect-[16/9] overflow-hidden">
+            <Link className="space-y-4" href={`/feed/${item.id}`}>
+                <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
                     {item.banner_image ? (
                         <img
                             src={item.banner_image}
                             alt="Thumbnail"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full"
                         />
                     ) : (
                         <div className="flex items-center justify-center w-full h-full">
@@ -68,7 +70,7 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
                         />
                     </div>
                 </div>
-            </div>
+            </Link>
         </>
     );
 };
@@ -90,16 +92,18 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
     sort,
 }) => {
     return (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.toSorted(sort).map((item) => (
+        <Masonry
+            items={items.toSorted(sort)}
+            columnGutter={32}
+            maxColumnCount={4}
+            render={({ data }) => (
                 <ContentGridItem
-                    key={item.id}
-                    item={item}
+                    item={data}
                     onDelete={onDelete}
                     onEdit={onEdit}
                 />
-            ))}
-        </div>
+            )}
+        />
     );
 };
 

@@ -56,7 +56,7 @@ const FeedMain: FC = () => {
                     {data && data.length > 0 ? (
                         <ContentGrid
                             items={data}
-                            sort={(a, b) => {
+                            /* sort={(a, b) => {
                                 if (sortedValue === "created_at") {
                                     return sortDirection === "asc"
                                         ? new Date(a.created_at).getTime() -
@@ -70,7 +70,7 @@ const FeedMain: FC = () => {
                                         : b.title.localeCompare(a.title);
                                 }
                                 return 0;
-                            }}
+                            }} */
                         />
                     ) : (
                         <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm w-full h-full">
