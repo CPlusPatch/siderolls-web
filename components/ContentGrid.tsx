@@ -1,6 +1,6 @@
 import { CardTitle } from "@/components/ui/card";
 import { Icon } from "@iconify-icon/react";
-import { Edit, Trash } from "lucide-react";
+import { Edit } from "lucide-react";
 import type { FC } from "react";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
@@ -14,28 +14,21 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { DataRow } from "@/lib/api";
 import TimeAgo from "react-timeago-i18n";
 
-export type ContentItem = {
-    id: string;
-    type: "link" | "media";
-    title: string;
-    created_at: string;
-    url: string;
-    description: string;
-    image?: string;
-};
-
-export const ContentGridItem: FC<
-    { item: ContentItem } & ContentItemActions
-> = ({ item, onDelete, onEdit }) => {
+export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
+    item,
+    onDelete,
+    onEdit,
+}) => {
     return (
         <>
             <div className="space-y-4">
                 <div className="rounded-lg border bg-card text-card-foreground shadow-sm aspect-[16/9] overflow-hidden">
-                    {item.type === "link" && !!item.image ? (
+                    {item.banner_image ? (
                         <img
-                            src={item.type === "link" ? item.image : ""}
+                            src={item.banner_image}
                             alt="Thumbnail"
                             className="w-full h-full object-cover"
                         />
@@ -81,13 +74,13 @@ export const ContentGridItem: FC<
 };
 
 interface GridProps {
-    items: ContentItem[];
+    items: DataRow[];
 }
 
 interface ContentItemActions {
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
-    sort?: (a: ContentItem, b: ContentItem) => number;
+    sort?: (a: DataRow, b: DataRow) => number;
 }
 
 export const ContentGrid: FC<GridProps & ContentItemActions> = ({
@@ -111,8 +104,8 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
 };
 
 export const GridItemContextMenu: FC<
-    { item: ContentItem } & ContentItemActions
-> = ({ item, onDelete }) => {
+    { item: DataRow } & ContentItemActions
+> = ({ item }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild={true}>
@@ -127,29 +120,6 @@ export const GridItemContextMenu: FC<
                     <Edit className="mr-2 h-4 w-4" />
                     <span>Edit</span>
                     <DropdownMenuShortcut>⌘I</DropdownMenuShortcut>
-                </DropdownMenuItem>
-                {item.type === "link" && (
-                    <DropdownMenuItem
-                        onClick={() => {
-                            navigator.clipboard.writeText(item.url);
-                        }}
-                    >
-                        <Icon
-                            className="mr-2 h-4 w-4"
-                            icon="tabler:clipboard"
-                        />
-                        <span>Copy Link</span>
-                        <DropdownMenuShortcut>⏎</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                    onClick={() => {
-                        onDelete?.(item.id);
-                    }}
-                >
-                    <Trash className="mr-2 h-4 w-4" />
-                    <span>Remove</span>
-                    <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

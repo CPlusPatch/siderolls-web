@@ -5,6 +5,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { MittProvider } from "@/components/events/useMitt";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PublicEnvScript } from "next-runtime-env";
 import type { ReactNode } from "react";
 import { SkeletonTheme } from "react-loading-skeleton";
 
@@ -25,6 +26,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
+            <head>
+                <PublicEnvScript />
+            </head>
             <body className={`${inter.className}`}>
                 <ThemeProvider
                     attribute="class"

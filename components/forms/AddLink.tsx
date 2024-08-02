@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -155,3 +155,4 @@ export const AddLinkDialog: FC<ContentAdderProps> = ({
         </Drawer>
     );
 };
+ */

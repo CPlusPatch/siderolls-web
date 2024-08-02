@@ -10,7 +10,7 @@ import {
 import { ListFilter } from "lucide-react";
 import { type FC, useState } from "react";
 
-type SortableValue = "created_at" | "title" | "type";
+type SortableValue = "created_at" | "title";
 type Direction = "asc" | "desc";
 
 export const SortDropdown: FC<{
@@ -68,12 +68,6 @@ export const SortDropdown: FC<{
                     onClick={() => handleSelect("title", direction)}
                 >
                     Title
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                    checked={value === "type"}
-                    onClick={() => handleSelect("type", direction)}
-                >
-                    Type
                 </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
         </DropdownMenu>

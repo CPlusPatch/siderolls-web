@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/drawer";
 import { Image, Link, type SVGAttributes } from "lucide-react";
 import { type ComponentType, type FC, type ReactNode, useState } from "react";
-import type { ContentItem } from "../ContentGrid";
 import { AddLinkDialog } from "./AddLink";
 
 const contentTypes: {
@@ -87,3 +86,4 @@ export interface ContentAdderProps {
     setOpen: (open: boolean) => void;
     open: boolean;
 }
+ */
