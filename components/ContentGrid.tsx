@@ -1,9 +1,7 @@
 import { CardTitle } from "@/components/ui/card";
 import { Icon } from "@iconify-icon/react";
-import { Edit } from "lucide-react";
+import { Edit, Folder } from "lucide-react";
 import type { FC } from "react";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -18,6 +16,7 @@ import type { DataRow } from "@/lib/api";
 import { Masonry } from "masonic";
 import Link from "next/link";
 import TimeAgo from "react-timeago-i18n";
+import Skeleton from "react-loading-skeleton";
 
 export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
     item,
@@ -26,54 +25,70 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
 }) => {
     return (
         <>
-            <Link className="space-y-4" href={`/feed/${item.id}`}>
-                <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
-                    {item.banner_image ? (
-                        <img
-                            src={item.banner_image}
-                            alt="Thumbnail"
-                            className="w-full h-full"
-                        />
-                    ) : (
-                        <div className="flex items-center justify-center w-full h-full">
-                            <Icon
-                                icon="tabler:link"
-                                className="size-16 text-muted-foreground"
-                                width="none"
+            <Link href={`/feed/${item.id}`}>
+                <div className="rounded relative border bg-card text-card-foreground shadow-sm overflow-hidden">
+                    <div className="flex items-center justify-center w-full h-full bg-accent/10">
+                        {item.banner_image ? (
+                            <img
+                                src={item.banner_image}
+                                alt={item.title}
+                                className="w-full"
                             />
-                        </div>
-                    )}
-                </div>
-                <div className="grid grid-cols-[auto_1fr_auto] items-start gap-x-4">
-                    <Avatar className="rounded">
-                        <AvatarFallback className="rounded">
-                            <Icon
-                                icon="tabler:link"
-                                className="size-6 text-foreground"
-                                width="none"
-                            />
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-1 break-words overflow-hidden">
-                        <CardTitle className="font-semibold text-base line-clamp-2">
-                            {item.title}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                            <TimeAgo date={item.created_at} />
-                        </p>
+                        ) : (
+                            <Folder className="size-16 text-accent-foreground" />
+                        )}
                     </div>
-                    <div className="shrink-0">
-                        <GridItemContextMenu
-                            item={item}
-                            onDelete={onDelete}
-                            onEdit={onEdit}
-                        />
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 via-[4rem] to-card/0 to-[10rem]" />
+
+                    <div className="grid absolute z-10 bottom-0 inset-x-0 p-4 grid-cols-[1fr_auto] items-center gap-x-4">
+                        <div className="space-y-0 break-all">
+                            <CardTitle className="font-semibold text-base line-clamp-2">
+                                {item.title || <Skeleton />}
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground">
+                                {item.created_at ? (
+                                    <TimeAgo date={item.created_at} />
+                                ) : (
+                                    <Skeleton />
+                                )}
+                            </p>
+                        </div>
+                        <div
+                            className="shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                        >
+                            {item.id ? (
+                                <GridItemContextMenu
+                                    item={item}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                />
+                            ) : (
+                                <Skeleton className="!size-10" />
+                            )}
+                        </div>
                     </div>
                 </div>
             </Link>
         </>
     );
 };
+
+export const ContentGridItemSkeleton: FC = () => (
+    <ContentGridItem
+        item={{
+            id: 3,
+            title: "",
+            created_at: "",
+            banner_image: "",
+            tags: [],
+            links: [],
+            content: "",
+        }}
+    />
+);
 
 interface GridProps {
     items: DataRow[];
