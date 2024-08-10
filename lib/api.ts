@@ -28,7 +28,7 @@ const createApiClient = (config: ApiConfig) => {
 
     return {
         getAllRows: () => fetchJson<DataRow[]>("/api/v1/rows"),
-        getRowById: (id: string) => fetchJson<DataRow>(`/api/rows/${id}`),
+        getRowById: (id: string) => fetchJson<DataRow>(`/api/v1/rows/${id}`),
     };
 };
 
