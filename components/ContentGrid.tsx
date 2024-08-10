@@ -39,7 +39,7 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
                         )}
                     </div>
 
-                    <div className="grid p-4 grid-cols-[1fr_auto] items-center gap-x-4">
+                    <div className="grid sm:py-4 px-4 py-3 grid-cols-[1fr_auto] items-center gap-x-4">
                         <div className="space-y-0 break-all">
                             <CardTitle className="font-semibold text-base line-clamp-2">
                                 {item.title || <Skeleton />}
