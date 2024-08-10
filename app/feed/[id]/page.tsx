@@ -38,30 +38,25 @@ const FeedMain: FC<{
                     </div>
                 </TabsContent>
                 <TabsContent value="more-info" className="py-4 h-full">
-                    {data.tags.length > 0 && (
-                        <div className="space-x-2 mb-4">
-                            {data.tags.map((tag) => (
-                                <Badge
-                                    key={tag}
-                                    variant="secondary"
-                                    className="capitalize"
-                                >
-                                    {tag}
-                                </Badge>
-                            ))}
-                        </div>
-                    )}
-                    <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-                        {data.title}
-                    </h1>
-                    {data.content.split("\n").map((paragraph) => (
-                        <p
-                            key={paragraph}
-                            className="leading-7 [&:not(:first-child)]:mt-6"
-                        >
-                            {paragraph}
-                        </p>
-                    ))}
+                    <div className="text-pretty mt-5 mx-auto prose dark:prose-invert">
+                        {data.tags.length > 0 && (
+                            <div className="space-x-2 mb-4">
+                                {data.tags.map((tag) => (
+                                    <Badge
+                                        key={tag}
+                                        variant="secondary"
+                                        className="capitalize"
+                                    >
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                        <h1>{data.title}</h1>
+                        {data.content.split("\n").map((paragraph) => (
+                            <p key={paragraph}>{paragraph}</p>
+                        ))}
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>
