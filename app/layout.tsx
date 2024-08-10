@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { MittProvider } from "@/components/events/useMitt";
+import { AddContentDialog } from "@/components/forms/AddContentDialog";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PublicEnvScript } from "next-runtime-env";
@@ -47,6 +48,7 @@ export default function RootLayout({
                                     className="min-h-[100vh] bg-background"
                                 >
                                     {children}
+                                    <AddContentDialog />
                                 </div>
                             </TooltipProvider>
                         </MittProvider>

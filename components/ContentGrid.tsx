@@ -1,8 +1,5 @@
-import { CardTitle } from "@/components/ui/card";
-import { Icon } from "@iconify-icon/react";
-import { Edit, Folder } from "lucide-react";
-import type { FC } from "react";
 import { Button } from "@/components/ui/button";
+import { CardTitle } from "@/components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,10 +10,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { DataRow } from "@/lib/api";
+import { Icon } from "@iconify-icon/react";
+import { Edit, Folder } from "lucide-react";
 import { Masonry } from "masonic";
 import Link from "next/link";
-import TimeAgo from "react-timeago-i18n";
+import type { FC } from "react";
 import Skeleton from "react-loading-skeleton";
+import TimeAgo from "react-timeago-i18n";
 
 export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
     item,
@@ -111,6 +111,7 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
             items={items.toSorted(sort)}
             columnGutter={32}
             maxColumnCount={4}
+            columnWidth={400}
             render={({ data }) => (
                 <ContentGridItem
                     item={data}
