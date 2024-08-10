@@ -8,7 +8,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,9 +43,6 @@ export function AddContentDialog() {
 
     return (
         <Dialog open={isDialogOpen} onOpenChange={(n) => setIsDialogOpen(n)}>
-            <DialogTrigger asChild={true}>
-                <Button variant="outline">Add content</Button>
-            </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Add new content</DialogTitle>
