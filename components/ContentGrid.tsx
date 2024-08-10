@@ -26,7 +26,7 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
     return (
         <>
             <Link href={`/feed/${item.id}`}>
-                <div className="rounded relative border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <div className="rounded relative border bg-card/80 text-card-foreground shadow-sm overflow-hidden">
                     <div className="flex items-center justify-center w-full h-full bg-accent/10">
                         {item.banner_image ? (
                             <img
@@ -39,9 +39,7 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
                         )}
                     </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 via-[4rem] to-card/0 to-[10rem]" />
-
-                    <div className="grid absolute z-10 bottom-0 inset-x-0 p-4 grid-cols-[1fr_auto] items-center gap-x-4">
+                    <div className="grid p-4 grid-cols-[1fr_auto] items-center gap-x-4">
                         <div className="space-y-0 break-all">
                             <CardTitle className="font-semibold text-base line-clamp-2">
                                 {item.title || <Skeleton />}
@@ -131,6 +129,7 @@ export const GridItemContextMenu: FC<
             <DropdownMenuTrigger asChild={true}>
                 <Button variant="ghost" size="icon">
                     <Icon icon="tabler:dots" className="size-4" width="none" />
+                    <span className="sr-only">More options</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 mx-2">
