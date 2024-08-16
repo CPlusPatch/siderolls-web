@@ -74,6 +74,8 @@ export function AddContentDialog() {
             links: [],
         });
 
+        setIsDialogOpen(false);
+
         // Go to /feed/[id]
         router.push(`/feed/${output.id}`);
     };
