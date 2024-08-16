@@ -9,16 +9,35 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useApi } from "@/lib/api";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Textarea } from "../ui/textarea";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { RichTextEditor } from "../editor/editor";
 
 const TRIGGER_SEQUENCE = "admin";
+
+const formSchema = z.object({
+    title: z.string().min(1),
+    image: z.string().url(),
+    content: z.string().min(1),
+});
 
 export function AddContentDialog() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [keySequence, setKeySequence] = useState<string[]>([]);
+    const api = useApi();
+    const router = useRouter();
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -41,9 +60,27 @@ export function AddContentDialog() {
         };
     }, [keySequence]);
 
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {},
+    });
+
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+        const output = await api.createRow({
+            title: data.title,
+            banner_image: data.image,
+            content: data.content,
+            tags: [],
+            links: [],
+        });
+
+        // Go to /feed/[id]
+        router.push(`/feed/${output.id}`);
+    };
+
     return (
         <Dialog open={isDialogOpen} onOpenChange={(n) => setIsDialogOpen(n)}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-3xl">
                 <DialogHeader>
                     <DialogTitle>Add new content</DialogTitle>
                     <DialogDescription>
@@ -51,32 +88,94 @@ export function AddContentDialog() {
                         sidepage.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="flex flex-col gap-4">
-                        <Label htmlFor="title">Title</Label>
-                        <Input id="title" placeholder="My Cool Title" />
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <Label htmlFor="type">Image URL</Label>
-                        <Input
-                            id="image"
-                            placeholder="https://example.com/image.jpg"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <Label htmlFor="content">Content</Label>
-                        <Textarea
-                            id="content"
-                            placeholder="My cool content..."
-                            rows={8}
-                        />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="submit" className="w-full">
-                        Save changes
-                    </Button>
-                </DialogFooter>
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-8"
+                    >
+                        <div className="grid gap-4 py-4">
+                            <FormField
+                                control={form.control}
+                                name="title"
+                                render={({ field }) => (
+                                    <div className="flex flex-col gap-4">
+                                        <FormLabel htmlFor="title">
+                                            Title
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                id="title"
+                                                placeholder="My Cool Title"
+                                                disabled={
+                                                    form.formState.isSubmitting
+                                                }
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </div>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="image"
+                                render={({ field }) => (
+                                    <div className="flex flex-col gap-4">
+                                        <FormLabel htmlFor="image">
+                                            Image URL
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                id="image"
+                                                placeholder="https://example.com/image.jpg"
+                                                disabled={
+                                                    form.formState.isSubmitting
+                                                }
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </div>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="content"
+                                render={({ field }) => (
+                                    <div className="flex flex-col gap-4">
+                                        <FormLabel htmlFor="content">
+                                            Content
+                                        </FormLabel>
+                                        <RichTextEditor
+                                            disabled={
+                                                form.formState.isSubmitting
+                                            }
+                                            onEdit={(v) =>
+                                                form.setValue("content", v)
+                                            }
+                                        />
+                                        <FormMessage />
+                                        <FormControl>
+                                            <textarea
+                                                className="hidden"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    </div>
+                                )}
+                            />
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={form.formState.isSubmitting}
+                            >
+                                Save changes
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     );

@@ -26,9 +26,36 @@ const createApiClient = (config: ApiConfig) => {
         return response.json();
     };
 
+    const postJson = async <T, R>(url: string, data: T): Promise<R> => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            throw new Error("No token found in localStorage");
+        }
+
+        const response = await fetch(`${config.baseUrl}${url}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response.json();
+    };
+
     return {
         getAllRows: () => fetchJson<DataRow[]>("/api/v1/rows"),
         getRowById: (id: string) => fetchJson<DataRow>(`/api/v1/rows/${id}`),
+        createRow: (data: Omit<DataRow, "id" | "created_at">) =>
+            postJson<Omit<DataRow, "id" | "created_at">, DataRow>(
+                "/api/v1/rows",
+                data,
+            ),
     };
 };
 
@@ -56,5 +83,7 @@ export const useApi = () => {
         useGetRowById: (id: string) =>
             // biome-ignore lint/correctness/useHookAtTopLevel: Biome is incorrect here
             useSWR(["row", id], () => apiClient.getRowById(id)),
+        createRow: (data: Omit<DataRow, "id" | "created_at">) =>
+            apiClient.createRow(data),
     };
 };

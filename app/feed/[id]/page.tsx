@@ -53,9 +53,11 @@ const FeedMain: FC<{
                             </div>
                         )}
                         <h1>{data.title}</h1>
-                        {data.content.split("\n").map((paragraph) => (
-                            <p key={paragraph}>{paragraph}</p>
-                        ))}
+                        <div
+                            /* biome-ignore lint/style/useNamingConvention: No */
+                            /* biome-ignore lint/security/noDangerouslySetInnerHtml: No */
+                            dangerouslySetInnerHTML={{ __html: data.content }}
+                        />
                     </div>
                 </TabsContent>
             </Tabs>
