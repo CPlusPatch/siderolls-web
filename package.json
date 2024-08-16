@@ -30,16 +30,16 @@
         "cookies-next": "^4.2.1",
         "framer-motion": "^11.3.21",
         "is-hotkey": "^0.2.0",
-        "lucide-react": "^0.424.0",
+        "lucide-react": "^0.428.0",
         "masonic": "^4.0.1",
         "mitt": "^3.0.1",
         "nanoid": "^5.0.7",
-        "next": "^15.0.0-canary.98",
+        "next": "^15.0.0-canary.117",
         "next-runtime-env": "^3.2.2",
         "next-themes": "^0.3.0",
-        "react": "^19.0.0-rc-fb9a90fa48-20240614",
+        "react": "^19.0.0-rc-19bd26be-20240815",
         "react-arborist": "^3.4.0",
-        "react-dom": "^19.0.0-rc-fb9a90fa48-20240614",
+        "react-dom": "^19.0.0-rc-19bd26be-20240815",
         "react-hook-form": "^7.52.1",
         "react-loading-skeleton": "^3.4.0",
         "react-parallax-tilt": "^1.7.234",
@@ -55,9 +55,9 @@
         "zod": "^3.23.8"
     },
     "overrides": {
-        "react": "^19.0.0-rc-fb9a90fa48-20240614",
-        "react-dom": "^19.0.0-rc-fb9a90fa48-20240614",
-        "next": "^15.0.0-canary.98"
+        "react": "^19.0.0-rc-19bd26be-20240815",
+        "react-dom": "^19.0.0-rc-19bd26be-20240815",
+        "next": "^15.0.0-canary.117"
     },
     "devDependencies": {
         "@biomejs/biome": "^1.8.3",
