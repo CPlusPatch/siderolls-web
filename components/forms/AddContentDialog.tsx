@@ -62,7 +62,11 @@ export function AddContentDialog() {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {},
+        defaultValues: {
+            title: "",
+            image: "",
+            content: "",
+        },
     });
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
@@ -148,14 +152,7 @@ export function AddContentDialog() {
                                         <FormLabel htmlFor="content">
                                             Content
                                         </FormLabel>
-                                        <RichTextEditor
-                                            disabled={
-                                                form.formState.isSubmitting
-                                            }
-                                            onEdit={(v) =>
-                                                form.setValue("content", v)
-                                            }
-                                        />
+
                                         <FormMessage />
                                         <FormControl>
                                             <textarea
@@ -165,6 +162,12 @@ export function AddContentDialog() {
                                         </FormControl>
                                     </div>
                                 )}
+                            />
+                            <RichTextEditor
+                                disabled={form.formState.isSubmitting}
+                                onEdit={(v) => {
+                                    form.setValue("content", v);
+                                }}
                             />
                         </div>
                         <DialogFooter>

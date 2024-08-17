@@ -1,23 +1,21 @@
+import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
 import { escapeHTML } from "@wordpress/escape-html";
 import isHotkey from "is-hotkey";
-import { type FC, useCallback, useEffect, useMemo } from "react";
-import type { BaseEditor } from "slate";
-import { type Descendant, Editor, Text, createEditor } from "slate";
-import { withHistory } from "slate-history";
+import { type FC, useCallback, useMemo } from "react";
+import { type BaseEditor, Element as SlateElement } from "slate";
+import { type Descendant, Editor, Text, Transforms, createEditor } from "slate";
+import { type HistoryEditor, withHistory } from "slate-history";
 import {
     Editable,
+    type ReactEditor,
     type RenderElementProps,
     type RenderLeafProps,
     Slate,
+    useSlate,
     withReact,
 } from "slate-react";
-
-const HOTKEYS = {
-    "mod+b": "bold",
-    "mod+i": "italic",
-    "mod+u": "underline",
-    "mod+`": "code",
-};
+import { Toggle } from "../ui/toggle";
+import { ToggleGroup } from "../ui/toggle-group";
 
 const serializeToHtml = (node: Descendant): string => {
     if (Text.isText(node)) {
@@ -40,24 +38,28 @@ const serializeToHtml = (node: Descendant): string => {
     const children = node.children.map((n) => serializeToHtml(n)).join("");
 
     switch (node.type) {
-        case "block-quote":
+        case BlockType.BlockQuote:
             return `<blockquote><p>${children}</p></blockquote>`;
-        case "paragraph":
+        case BlockType.Paragraph:
             return `<p>${children}</p>`;
-        case "link":
+        case BlockType.Link:
             return `<a href="${escapeHTML(node.url)}">${children}</a>`;
-        case "bulleted-list":
+        case BlockType.UnorderedList:
             return `<ul>${children}</ul>`;
-        case "numbered-list":
+        case BlockType.OrderedList:
             return `<ol>${children}</ol>`;
-        case "list-item":
+        case BlockType.ListItem:
             return `<li>${children}</li>`;
-        case "heading-one":
+        case BlockType.Heading:
             return `<h1>${children}</h1>`;
-        case "heading-two":
-            return `<h2>${children}</h2>`;
-        case "heading-three":
-            return `<h3>${children}</h3>`;
+        case BlockType.CodeBlock:
+            return `<pre><code>${children}</code></pre>`;
+        case BlockType.CodeLine:
+            return `<code>${children}</code>`;
+        case BlockType.QuoteLine:
+            return `<blockquote>${children}</blockquote>`;
+        case BlockType.Emoticon:
+            return `<span>${children}</span>`;
         default:
             return children;
     }
@@ -77,11 +79,6 @@ export const RichTextEditor: FC<{
     );
     const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
-    useEffect(() => {
-        // If initial value, call onEdit to set the initial value
-        onEdit?.(initialValue.map(serializeToHtml).join(""));
-    });
-
     return (
         <Slate
             editor={editor}
@@ -90,30 +87,209 @@ export const RichTextEditor: FC<{
                 onEdit?.(value.map(serializeToHtml).join(""));
             }}
         >
-            <Editable
-                renderElement={renderElement}
-                renderLeaf={renderLeaf}
-                placeholder="Enter some rich text…"
-                spellCheck={true}
-                autoFocus={true}
-                data-disabled={disabled || undefined}
-                className="h-96 w-full rounded-md border border-input bg-background p-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 prose dark:prose-invert !max-w-full"
-                onKeyDown={(event) => {
-                    for (const hotkey in HOTKEYS) {
-                        if (isHotkey(hotkey, event)) {
-                            event.preventDefault();
-                            const mark =
-                                HOTKEYS[hotkey as keyof typeof HOTKEYS];
-                            toggleMark(editor, mark);
+            <div
+                className={
+                    "flex flex-col gap-4 w-full rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-within:outline-none focus-within:ring-2 p-4 focus-within:ring-ring focus-within:ring-offset-2 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 prose dark:prose-invert !max-w-full"
+                }
+            >
+                <ToggleGroup type="single" className="justify-start">
+                    <BlockButton
+                        format={BlockType.Heading}
+                        icon="mdi-format-header-1"
+                    />
+                    <BlockButton
+                        format={BlockType.BlockQuote}
+                        icon="mdi-format-quote-open"
+                    />
+                    <BlockButton
+                        format={BlockType.OrderedList}
+                        icon="mdi-format-list-numbered"
+                    />
+                    <BlockButton
+                        format={BlockType.UnorderedList}
+                        icon="mdi-format-list-bulleted"
+                    />
+                    <BlockButton
+                        format={BlockType.CodeBlock}
+                        icon="mdi-code-tags"
+                    />
+                    <BlockButton
+                        format={BlockType.Link}
+                        icon="mdi-link-variant"
+                    />
+                    <MarkButton format={MarkType.Bold} icon="mdi-format-bold" />
+                    <MarkButton
+                        format={MarkType.Italic}
+                        icon="mdi-format-italic"
+                    />
+                    <MarkButton
+                        format={MarkType.Underline}
+                        icon="mdi-format-underline"
+                    />
+                    <MarkButton format={MarkType.Code} icon="mdi-code-tags" />
+                    <MarkButton
+                        format={MarkType.StrikeThrough}
+                        icon="mdi-format-strikethrough"
+                    />
+                </ToggleGroup>
+                <Editable
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    placeholder="Enter some rich text…"
+                    spellCheck={true}
+                    autoFocus={true}
+                    data-disabled={disabled || undefined}
+                    className="h-96 focus:outline-none prose-p:my-0 overflow-auto"
+                    onKeyDown={(event) => {
+                        for (const hotkey in HOTKEYS) {
+                            if (isHotkey(hotkey, event)) {
+                                event.preventDefault();
+                                const mark =
+                                    HOTKEYS[hotkey as keyof typeof HOTKEYS];
+                                toggleMark(editor, mark);
+                            }
                         }
-                    }
-                }}
-            />
+                    }}
+                />
+            </div>
         </Slate>
     );
 };
 
-const toggleMark = (editor: Editor, format: string) => {
+const BlockButton: FC<{
+    format: BlockType;
+    icon: string;
+}> = ({ format, icon }) => {
+    const editor = useSlate();
+    return (
+        <Toggle
+            pressed={isBlockActive(editor, format)}
+            onClick={(event) => {
+                event.preventDefault();
+                toggleBlock(editor, format);
+            }}
+            variant="outline"
+        >
+            <Icon icon={icon} />
+        </Toggle>
+    );
+};
+
+const MarkButton: FC<{
+    format: MarkType;
+    icon: string;
+}> = ({ format, icon }) => {
+    const editor = useSlate();
+    return (
+        <Toggle
+            pressed={isMarkActive(editor, format)}
+            onClick={(event) => {
+                event.preventDefault();
+                toggleMark(editor, format);
+            }}
+            variant="outline"
+        >
+            <Icon icon={icon} />
+        </Toggle>
+    );
+};
+
+type HeadingLevel = 1 | 2 | 3;
+type BlockOption = { level: HeadingLevel };
+
+const toggleBlock = (
+    editor: Editor,
+    format: BlockType,
+    option?: BlockOption,
+) => {
+    Transforms.collapse(editor, {
+        edge: "end",
+    });
+    const isActive = isBlockActive(editor, format);
+
+    Transforms.unwrapNodes(editor, {
+        match: (node) =>
+            SlateElement.isElement(node) && NESTED_BLOCK.includes(node.type),
+        split: true,
+    });
+
+    if (isActive) {
+        Transforms.setNodes(editor, {
+            type: BlockType.Paragraph,
+        });
+        return;
+    }
+
+    switch (format) {
+        case BlockType.OrderedList:
+        case BlockType.UnorderedList: {
+            Transforms.setNodes(editor, {
+                type: BlockType.ListItem,
+            });
+            const listBlock = {
+                type: format,
+                children: [],
+            };
+            Transforms.wrapNodes(editor, listBlock);
+            return;
+        }
+        case BlockType.CodeBlock: {
+            Transforms.setNodes(editor, {
+                type: BlockType.CodeLine,
+            });
+            const codeBlock = {
+                type: format,
+                children: [],
+            };
+            Transforms.wrapNodes(editor, codeBlock);
+            return;
+        }
+        case BlockType.BlockQuote: {
+            Transforms.setNodes(editor, {
+                type: BlockType.QuoteLine,
+            });
+            const quoteBlock = {
+                type: format,
+                children: [],
+            };
+            Transforms.wrapNodes(editor, quoteBlock);
+            return;
+        }
+        case BlockType.Heading:
+            Transforms.setNodes(editor, {
+                type: format,
+                level: option?.level ?? 1,
+            });
+            break;
+        case BlockType.Link: {
+            const url = window.prompt("Enter the URL of the link:");
+            if (!url) {
+                return;
+            }
+            Transforms.wrapNodes(editor, {
+                type: format,
+                url,
+                children: [],
+            });
+            break;
+        }
+        default:
+            Transforms.setNodes(editor, {
+                type: format,
+            });
+            break;
+    }
+};
+
+const isBlockActive = (editor: Editor, format: BlockType) => {
+    const [match] = Editor.nodes(editor, {
+        match: (node) => SlateElement.isElement(node) && node.type === format,
+    });
+
+    return !!match;
+};
+
+const toggleMark = (editor: Editor, format: MarkType) => {
     const isActive = isMarkActive(editor, format);
 
     if (isActive) {
@@ -123,63 +299,51 @@ const toggleMark = (editor: Editor, format: string) => {
     }
 };
 
-const isMarkActive = (editor: Editor, format: string) => {
+const isMarkActive = (editor: Editor, format: MarkType) => {
     const marks = Editor.marks(editor);
-    return marks ? marks[format as keyof typeof marks] === true : false;
+    return marks ? marks[format] === true : false;
 };
 
 const Element: FC<RenderElementProps> = ({ attributes, children, element }) => {
     const style = { textAlign: element.align };
     switch (element.type) {
-        case "block-quote":
+        case BlockType.BlockQuote:
             return (
                 <blockquote style={style} {...attributes}>
                     {children}
                 </blockquote>
             );
-        case "bulleted-list":
+        case BlockType.UnorderedList:
             return (
                 <ul style={style} {...attributes}>
                     {children}
                 </ul>
             );
-        case "heading-one":
+        case BlockType.Heading:
             return (
                 <h1 style={style} {...attributes}>
                     {children}
                 </h1>
             );
-        case "heading-two":
-            return (
-                <h2 style={style} {...attributes}>
-                    {children}
-                </h2>
-            );
-        case "heading-three":
-            return (
-                <h3 style={style} {...attributes}>
-                    {children}
-                </h3>
-            );
-        case "list-item":
+        case BlockType.ListItem:
             return (
                 <li style={style} {...attributes}>
                     {children}
                 </li>
             );
-        case "numbered-list":
+        case BlockType.OrderedList:
             return (
                 <ol style={style} {...attributes}>
                     {children}
                 </ol>
             );
-        case "paragraph":
+        case BlockType.Paragraph:
             return (
                 <p style={style} {...attributes}>
                     {children}
                 </p>
             );
-        case "link":
+        case BlockType.Link:
             return (
                 <a
                     style={style}
@@ -220,9 +384,46 @@ const Leaf: FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
     return <span {...attributes}>{children}</span>;
 };
 
+export enum MarkType {
+    Bold = "bold",
+    Italic = "italic",
+    Underline = "underline",
+    StrikeThrough = "strikeThrough",
+    Code = "code",
+    Spoiler = "spoiler",
+}
+
+export enum BlockType {
+    Paragraph = "paragraph",
+    Heading = "heading",
+    CodeLine = "code-line",
+    CodeBlock = "code-block",
+    QuoteLine = "quote-line",
+    BlockQuote = "block-quote",
+    ListItem = "list-item",
+    OrderedList = "ordered-list",
+    UnorderedList = "unordered-list",
+    Emoticon = "emoticon",
+    Link = "link",
+}
+
+const HOTKEYS = {
+    "mod+b": MarkType.Bold,
+    "mod+i": MarkType.Italic,
+    "mod+u": MarkType.Underline,
+    "mod+`": MarkType.Code,
+};
+
+const NESTED_BLOCK = [
+    BlockType.OrderedList,
+    BlockType.UnorderedList,
+    BlockType.BlockQuote,
+    BlockType.CodeBlock,
+];
+
 type CustomBaseElement = { align?: "left" | "center" | "right" };
 type CustomParagraph = CustomBaseElement & {
-    type: "paragraph";
+    type: BlockType.Paragraph;
     children: CustomText[];
 };
 type CustomText = {
@@ -231,85 +432,78 @@ type CustomText = {
     italic?: true;
     underline?: true;
     code?: true;
+    strikeThrough?: true;
+    spoiler?: true;
+    emoticon?: true;
+    mention?: true;
 };
 type CustomBlockQuote = CustomBaseElement & {
-    type: "block-quote";
+    type: BlockType.BlockQuote;
     children: CustomText[];
 };
-type CustomBulletedList = CustomBaseElement & {
-    type: "bulleted-list";
-    children: CustomListItem[];
-};
-type CustomNumberedList = CustomBaseElement & {
-    type: "numbered-list";
-    children: CustomListItem[];
+type CustomHeading = CustomBaseElement & {
+    type: BlockType.Heading;
+    level: 1 | 2 | 3;
+    children: CustomText[];
 };
 type CustomListItem = CustomBaseElement & {
-    type: "list-item";
+    type: BlockType.ListItem;
     children: CustomText[];
 };
-type CustomHeadingOne = CustomBaseElement & {
-    type: "heading-one";
-    children: CustomText[];
+type CustomOrderedList = CustomBaseElement & {
+    type: BlockType.OrderedList;
+    children: CustomListItem[];
 };
-type CustomHeadingTwo = CustomBaseElement & {
-    type: "heading-two";
-    children: CustomText[];
+type CustomUnorderedList = CustomBaseElement & {
+    type: BlockType.UnorderedList;
+    children: CustomListItem[];
 };
-type CustomHeadingThree = CustomBaseElement & {
-    type: "heading-three";
-    children: CustomText[];
-};
-type CustomHeading = CustomHeadingOne | CustomHeadingTwo | CustomHeadingThree;
 type CustomLink = CustomBaseElement & {
-    type: "link";
+    type: BlockType.Link;
     url: string;
+    children: CustomText[];
+};
+type CustomCodeBlock = CustomBaseElement & {
+    type: BlockType.CodeBlock;
+    children: CustomText[];
+};
+type CustomCodeLine = CustomBaseElement & {
+    type: BlockType.CodeLine;
+    children: CustomText[];
+};
+type CustomQuoteLine = CustomBaseElement & {
+    type: BlockType.QuoteLine;
+    children: CustomText[];
+};
+type CustomEmoticon = CustomBaseElement & {
+    type: BlockType.Emoticon;
     children: CustomText[];
 };
 type CustomElement =
     | CustomParagraph
     | CustomBlockQuote
-    | CustomBulletedList
-    | CustomNumberedList
-    | CustomListItem
     | CustomHeading
-    | CustomLink;
+    | CustomOrderedList
+    | CustomUnorderedList
+    | CustomListItem
+    | CustomLink
+    | CustomQuoteLine
+    | CustomCodeBlock
+    | CustomCodeLine
+    | CustomEmoticon;
 
 declare module "slate" {
     interface CustomTypes {
-        Editor: BaseEditor;
+        Editor: BaseEditor & ReactEditor & HistoryEditor;
         Element: CustomElement;
         Text: CustomText;
     }
 }
 
 const initialValue: Descendant[] = [
+    // Single text node
     {
-        type: "paragraph",
-        children: [
-            { text: "This is editable " },
-            { text: "rich", bold: true },
-            { text: " text, " },
-            { text: "much", italic: true },
-            { text: " better than a " },
-            { text: "<textarea>", code: true },
-            { text: "!" },
-        ],
-    },
-    {
-        type: "paragraph",
-        children: [
-            {
-                text: "Since it's rich text, you can do things like turn a selection of text ",
-            },
-            { text: "bold", bold: true },
-            {
-                text: ", or add a semantically rendered block quote in the middle of the page, like this:",
-            },
-        ],
-    },
-    {
-        type: "block-quote",
-        children: [{ text: "A wise quote." }],
+        type: BlockType.Paragraph,
+        children: [{ text: "" }],
     },
 ];
