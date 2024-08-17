@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApi } from "@/lib/api";
 import type { FC } from "react";
+import TreeMain from "../trees/page";
 
 const FeedMain: FC<{
     params: {
@@ -27,6 +28,9 @@ const FeedMain: FC<{
                 </div>
                 <TabsContent value="source" className="py-4 h-full">
                     <div className="gap-8 grid grid-cols-1 lg:grid-cols-2 w-full">
+                        <div className="h-full overflow-auto py-4 ring-1 w-full ring-ring/10 rounded bg-card">
+                            <TreeMain />
+                        </div>
                         <div className="overflow-hidden ring-1 ring-ring/10 rounded lg:max-w-xl w-full flex items-center justify-center">
                             <img
                                 src={data.banner_image}
@@ -34,7 +38,6 @@ const FeedMain: FC<{
                                 className="w-full h-full object-contain"
                             />
                         </div>
-                        <div className="h-full overflow-auto py-4 ring-1 w-full ring-ring/10 rounded" />
                     </div>
                 </TabsContent>
                 <TabsContent value="more-info" className="py-4 h-full">
