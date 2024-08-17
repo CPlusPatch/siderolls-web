@@ -1,12 +1,13 @@
 "use client";
 
 import { ContentGrid } from "@/components/ContentGrid";
+import { useMitt } from "@/components/events/useMitt";
 import { SortDropdown } from "@/components/forms/SortDropdown";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApi } from "@/lib/api";
-import { File } from "lucide-react";
-import { type FC, useState } from "react";
+import { File, Plus } from "lucide-react";
+import { type FC, useEffect, useState } from "react";
 
 const FeedMain: FC = () => {
     const api = useApi();
@@ -16,10 +17,40 @@ const FeedMain: FC = () => {
     );
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
+    const [loggedIn, setLoggedIn] = useState(false);
+    const mitt = useMitt();
+
+    // SSR-safe localStorage check if token is present
+    useEffect(() => {
+        const checkToken = () => {
+            setLoggedIn(!!localStorage.getItem("token"));
+        };
+
+        if (typeof window !== "undefined") {
+            mitt.emitter.on("set-token", checkToken);
+            checkToken();
+        }
+
+        return () => {
+            mitt.emitter.off("set-token", checkToken);
+        };
+    }, [mitt.emitter.on, mitt.emitter.off]);
+
     return (
         <div className="p-4 flex flex-col gap-y-4 w-full h-full overflow-hidden">
             <Tabs defaultValue="all" className="flex flex-col grow">
-                <div className="flex items-center">
+                <div className="flex items-center gap-4">
+                    {loggedIn && (
+                        <Button
+                            size="sm"
+                            onClick={() => {
+                                mitt.emitter.emit("create-content");
+                            }}
+                        >
+                            <Plus className="size-4 mr-2" />
+                            Add content
+                        </Button>
+                    )}
                     <TabsList>
                         <TabsTrigger value="all">All</TabsTrigger>
                         <TabsTrigger value="active">Active</TabsTrigger>

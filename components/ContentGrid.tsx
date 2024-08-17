@@ -108,8 +108,8 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
         <Masonry
             items={items.toSorted(sort)}
             columnGutter={32}
-            maxColumnCount={4}
-            columnWidth={400}
+            maxColumnCount={6}
+            columnWidth={200}
             render={({ data }) => (
                 <ContentGridItem
                     item={data}

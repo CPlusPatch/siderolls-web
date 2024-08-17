@@ -20,12 +20,11 @@ import { Input } from "@/components/ui/input";
 import { useApi } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { RichTextEditor } from "../editor/editor";
-
-const TRIGGER_SEQUENCE = "admin";
+import { useMitt } from "../events/useMitt";
 
 const formSchema = z.object({
     title: z.string().min(1),
@@ -35,30 +34,8 @@ const formSchema = z.object({
 
 export function AddContentDialog() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [keySequence, setKeySequence] = useState<string[]>([]);
     const api = useApi();
     const router = useRouter();
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            const newSequence = [...keySequence, event.key];
-            setKeySequence(newSequence);
-
-            if (newSequence.join("") === TRIGGER_SEQUENCE) {
-                event.preventDefault();
-                setIsDialogOpen(true);
-                setKeySequence([]); // Reset the sequence after successful match
-            } else if (newSequence.length > TRIGGER_SEQUENCE.length) {
-                setKeySequence([]); // Reset if sequence is too long
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [keySequence]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -67,6 +44,10 @@ export function AddContentDialog() {
             image: "",
             content: "",
         },
+    });
+
+    useMitt().emitter.on("create-content", () => {
+        setIsDialogOpen(true);
     });
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {

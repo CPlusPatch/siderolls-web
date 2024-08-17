@@ -5,6 +5,7 @@ import { type FC, type ReactNode, createContext, useContext } from "react";
 
 type EmitterEvents = {
     "create-content": undefined;
+    "set-token": string;
 };
 const emitter: Emitter<EmitterEvents> = mitt();
 

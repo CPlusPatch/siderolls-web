@@ -1,4 +1,5 @@
 "use client";
+import { useMitt } from "@/components/events/useMitt";
 import { ThemeToggle } from "@/components/theme-trigger";
 import {
     Breadcrumb,
@@ -13,12 +14,17 @@ import Link from "next/link";
 import { type FC, type ReactNode, useEffect } from "react";
 
 const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
+    const mitt = useMitt();
     // If ctrl + shift + a is pressed, ask for the token
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "a" && event.ctrlKey && event.altKey) {
                 event.preventDefault();
                 localStorage.setItem("token", prompt("Enter your token") ?? "");
+                mitt.emitter.emit(
+                    "set-token",
+                    localStorage.getItem("token") ?? "",
+                );
             }
         };
 
@@ -27,7 +33,7 @@ const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, [mitt.emitter.emit]);
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
