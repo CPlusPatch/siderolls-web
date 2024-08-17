@@ -10,9 +10,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import type { FC, ReactNode } from "react";
+import { type FC, type ReactNode, useEffect } from "react";
 
 const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
+    // If ctrl + shift + a is pressed, ask for the token
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "a" && event.ctrlKey && event.altKey) {
+                event.preventDefault();
+                localStorage.setItem("token", prompt("Enter your token") ?? "");
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, []);
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             {/* <Aside /> */}
