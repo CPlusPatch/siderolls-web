@@ -51,11 +51,23 @@ const createApiClient = (config: ApiConfig) => {
     return {
         getAllRows: () => fetchJson<DataRow[]>("/api/v1/rows"),
         getRowById: (id: string) => fetchJson<DataRow>(`/api/v1/rows/${id}`),
-        createRow: (data: Omit<DataRow, "id" | "created_at">) =>
-            postJson<Omit<DataRow, "id" | "created_at">, DataRow>(
-                "/api/v1/rows",
-                data,
-            ),
+        createRow: (data: {
+            tags?: string[];
+            banner_image?: string;
+            links?: string[];
+            content?: string;
+            title: string;
+        }) =>
+            postJson<
+                {
+                    tags?: string[];
+                    banner_image?: string;
+                    links?: string[];
+                    content?: string;
+                    title: string;
+                },
+                DataRow
+            >("/api/v1/rows", data),
     };
 };
 
@@ -83,7 +95,12 @@ export const useApi = () => {
         useGetRowById: (id: string) =>
             // biome-ignore lint/correctness/useHookAtTopLevel: Biome is incorrect here
             useSWR(["row", id], () => apiClient.getRowById(id)),
-        createRow: (data: Omit<DataRow, "id" | "created_at">) =>
-            apiClient.createRow(data),
+        createRow: (data: {
+            tags?: string[];
+            banner_image?: string;
+            links?: string[];
+            content?: string;
+            title: string;
+        }) => apiClient.createRow(data),
     };
 };

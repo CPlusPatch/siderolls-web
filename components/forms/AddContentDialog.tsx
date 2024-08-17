@@ -28,8 +28,8 @@ import { useMitt } from "../events/useMitt";
 
 const formSchema = z.object({
     title: z.string().min(1),
-    image: z.string().url(),
-    content: z.string().min(1),
+    image: z.string().url().optional(),
+    content: z.string().min(1).optional(),
 });
 
 export function AddContentDialog() {
@@ -41,8 +41,8 @@ export function AddContentDialog() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
-            image: "",
-            content: "",
+            image: undefined,
+            content: undefined,
         },
     });
 
