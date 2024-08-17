@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Plus, Trash } from "lucide-react";
+import { ChevronRight, Link, Plus, Trash } from "lucide-react";
 import type { FC } from "react";
 import {
     StaticTreeDataProvider,
@@ -8,6 +8,13 @@ import {
     UncontrolledTreeEnvironment,
 } from "react-complex-tree";
 import "react-complex-tree/lib/style-modern.css";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { nanoid } from "nanoid";
 
 const TreeMain: FC = () => {
@@ -16,36 +23,48 @@ const TreeMain: FC = () => {
             index: string;
             isFolder?: boolean;
             children: string[];
-            data: string;
+            data: {
+                title: string;
+                url?: string;
+            };
         };
     } = {
         root: {
             index: "root",
             isFolder: true,
             children: ["child1", "child2"],
-            data: "Root item",
+            data: {
+                title: "Root item",
+            },
         },
         child1: {
             index: "child1",
             children: [],
-            data: "Child item 1",
+            data: {
+                title: "Child item 1",
+                url: "https://example.com",
+            },
         },
         child2: {
             index: "child2",
             isFolder: true,
             children: ["child3"],
-            data: "Child item 2",
+            data: {
+                title: "Child item 2",
+            },
         },
         child3: {
             index: "child3",
             children: [],
-            data: "Child item 3",
+            data: {
+                title: "Child item 3",
+            },
         },
     };
 
     const dataProvider = new StaticTreeDataProvider(items, (item, newName) => ({
         ...item,
-        data: newName,
+        data: { ...item.data, title: newName },
     }));
 
     return (
@@ -61,7 +80,9 @@ const TreeMain: FC = () => {
                     const newItem = {
                         index: nanoid(),
                         children: [],
-                        data: name,
+                        data: {
+                            title: name,
+                        },
                     };
 
                     items[newItem.index] = newItem;
@@ -75,7 +96,7 @@ const TreeMain: FC = () => {
             </Button>
             <UncontrolledTreeEnvironment
                 dataProvider={dataProvider}
-                getItemTitle={(item) => item.data}
+                getItemTitle={(item) => item.data.title}
                 viewState={{}}
                 canDragAndDrop={true}
                 canReorderItems={true}
@@ -148,6 +169,45 @@ const TreeMain: FC = () => {
                                         {arrow}
                                         {title}
                                     </div>
+                                    <Popover>
+                                        <PopoverTrigger asChild={true}>
+                                            <Button size="icon" variant="link">
+                                                <Link className="size-4" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                            <div className="grid gap-4">
+                                                <div className="space-y-2">
+                                                    <h4 className="font-medium leading-none">
+                                                        Link
+                                                    </h4>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        Set the link for this
+                                                        node.
+                                                    </p>
+                                                </div>
+                                                <div className="grid gap-2">
+                                                    <div className="grid grid-cols-3 items-center gap-4">
+                                                        <Label htmlFor="url">
+                                                            URL
+                                                        </Label>
+                                                        <Input
+                                                            id="url"
+                                                            defaultValue={
+                                                                item.data.url
+                                                            }
+                                                            onInput={(e) => {
+                                                                item.data.url =
+                                                                    e.currentTarget.value;
+                                                            }}
+                                                            placeholder="https://example.com"
+                                                            className="col-span-2 h-8"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
                                     <Button
                                         size="icon"
                                         variant="link"
