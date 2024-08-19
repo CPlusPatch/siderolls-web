@@ -5,10 +5,10 @@ import {
 } from "@/components/tree/dataProvider";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { type FC, useState } from "react";
+import type { FC } from "react";
 
 const TreeMain: FC = () => {
-    const [items] = useState<Items>({
+    const items: Items = {
         root: {
             index: "root",
             isFolder: true,
@@ -31,7 +31,7 @@ const TreeMain: FC = () => {
             children: [],
             data: { title: "Child item 3" },
         },
-    });
+    };
 
     const dataProvider = initializeDataProvider(items);
 
