@@ -82,7 +82,7 @@ const FeedMain: FC<{
                             />
                         </div>
                         <div className="lg:max-w-xl w-full flex items-start justify-center h-fit">
-                            <div className="ring-1 ring-ring/10 flex items-center justify-center rounded overflow-hidden">
+                            <div className="ring-1 ring-ring/10 w-full flex items-center justify-center rounded overflow-hidden">
                                 <img
                                     src={data.banner_image}
                                     alt="Banner"
