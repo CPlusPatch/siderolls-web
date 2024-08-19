@@ -27,7 +27,7 @@ const FeedMain: FC<{
                     </TabsList>
                 </div>
                 <TabsContent value="source" className="py-4 h-full">
-                    <div className="gap-8 grid grid-cols-1 lg:grid-cols-2 w-full">
+                    <div className="gap-8 grid grid-cols-1 lg:grid-cols-2 w-full h-full">
                         <div className="h-full overflow-auto py-4 ring-1 w-full ring-ring/10 rounded bg-card">
                             <TreeMain />
                         </div>

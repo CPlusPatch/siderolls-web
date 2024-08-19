@@ -43,6 +43,7 @@
         "react-arborist": "^3.4.0",
         "react-complex-tree": "^2.4.5",
         "react-dom": "^19.0.0-rc-19bd26be-20240815",
+        "react-dropzone": "^14.2.3",
         "react-hook-form": "^7.52.1",
         "react-loading-skeleton": "^3.4.0",
         "react-parallax-tilt": "^1.7.234",
