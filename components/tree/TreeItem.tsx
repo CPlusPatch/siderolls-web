@@ -7,8 +7,7 @@ import type {
     TreeInformation,
     TreeItemRenderContext,
 } from "react-complex-tree";
-import ImagePopover from "./ImagePopover";
-import LinkPopover from "./LinkPopover";
+import Sidebar from "./Sidebar";
 import type { Item, Items } from "./Tree";
 import { removeItem } from "./dataProvider";
 
@@ -37,14 +36,7 @@ const TreeItem: FC<{
                     {arrow}
                     {title}
                 </div>
-                <LinkPopover item={item} />
-                {!item.isFolder && (
-                    <ImagePopover
-                        item={item}
-                        items={items}
-                        provider={provider}
-                    />
-                )}
+                <Sidebar item={item} items={items} provider={provider} />
                 <Button
                     size="icon"
                     variant="link"

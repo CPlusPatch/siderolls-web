@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApi } from "@/lib/api";
-import { Plus } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 import type { FC } from "react";
 
 const FeedMain: FC<{
@@ -70,10 +70,18 @@ const FeedMain: FC<{
                 </div>
                 <TabsContent value="source" className="py-4 h-full">
                     <div className="gap-8 grid grid-cols-1 lg:grid-cols-2 w-full h-full">
-                        <div className="h-fit overflow-auto p-4 ring-1 w-full ring-ring/10 rounded bg-card flex flex-col gap-4">
-                            <div className="flex flex-row gap-2">
-                                <Button onClick={handleAddItem} size={"icon"}>
-                                    <Plus className="size-4" />
+                        <div className="h-fit overflow-auto p-4 ring-1 w-full ring-ring/10 rounded bg-card flex flex-col gap-8">
+                            <div className="flex flex-row gap-2 justify-between items-center">
+                                <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                                    {data.title}
+                                </h1>
+                                <Button
+                                    onClick={handleAddItem}
+                                    size="icon"
+                                    variant="ghost"
+                                >
+                                    <CirclePlus className="size-5" />
+                                    <span className="sr-only">Add item</span>
                                 </Button>
                             </div>
                             <TreeComponent
