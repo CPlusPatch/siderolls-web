@@ -16,8 +16,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "Siderolls",
-    description: "Organize your sidetrees with Siderolls",
+    title: "Sidepages",
+    description: "A content management system for sidepages",
 };
 
 export default function RootLayout({

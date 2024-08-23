@@ -2,9 +2,9 @@
   <a href="https://lysand.org"><img src="https://cdn.lysand.org/logo-long-dark.webp" alt="Lysand Logo" height="110"></a>
 </p> -->
 
-<center><h1><code>siderolls-web</code></h1></center>
+<center><h1><code>sidepages-web</code></h1></center>
 
-Siderolls is a content aggregator for the web. It collects and organizes content from various sources and presents them in a structured manner. This is the web version of the Siderolls project.
+Sidepages is a content aggregator for the web. It collects and organizes content from various sources and presents them in a structured manner. This is the web version of the Sidepages project.
 
 ## Things to do
 - [ ] Associated links in Sidepages
