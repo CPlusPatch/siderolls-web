@@ -13,16 +13,14 @@ import {
 } from "@/components/ui/sheet";
 import { Image, MoreHorizontal } from "lucide-react";
 import { type FC, useCallback } from "react";
-import type { StaticTreeDataProvider, TreeItem } from "react-complex-tree";
 import { useDropzone } from "react-dropzone";
-import type { Item, Items } from "./Tree";
-import { editItem } from "./dataProvider";
+import type { CustomTreeDataProvider } from "./DataProvider";
+import type { Item } from "./Tree";
 
 const Sidebar: FC<{
-    item: TreeItem<Item["data"]>;
-    items: Items;
-    provider: StaticTreeDataProvider;
-}> = ({ item, items, provider }) => {
+    item: Item;
+    provider: CustomTreeDataProvider<Item["data"]>;
+}> = ({ item, provider }) => {
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
             for (const file of acceptedFiles) {
@@ -33,14 +31,14 @@ const Sidebar: FC<{
                 reader.onerror = () => console.error("file reading has failed");
                 reader.onload = () => {
                     const src = reader.result as string;
-                    editItem(provider, items, String(item.index), {
+                    provider.editItem(String(item.index), {
                         image: { src, alt: file.name },
                     });
                 };
                 reader.readAsDataURL(file);
             }
         },
-        [item, items, provider],
+        [item, provider],
     );
 
     const { getRootProps, getInputProps } = useDropzone({ onDrop });
@@ -48,7 +46,7 @@ const Sidebar: FC<{
     return (
         <Sheet>
             <SheetTrigger asChild={true}>
-                <Button size="icon" variant="link">
+                <Button size="icon" variant="ghost" className="shrink-0">
                     <MoreHorizontal className="size-4" />
                 </Button>
             </SheetTrigger>
@@ -95,9 +93,11 @@ const Sidebar: FC<{
                 </div>
                 <SheetFooter className="mt-auto">
                     <SheetClose asChild={true}>
-                        <Button type="submit" className="w-full">
-                            Save changes
-                        </Button>
+                        <div className="flex flex-col gap-2 w-full">
+                            <Button type="submit" className="w-full">
+                                Save changes
+                            </Button>
+                        </div>
                     </SheetClose>
                 </SheetFooter>
             </SheetContent>

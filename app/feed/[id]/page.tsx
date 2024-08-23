@@ -1,14 +1,11 @@
 "use client";
+import { initializeDataProvider } from "@/components/tree/DataProvider";
 import TreeComponent, { type Items } from "@/components/tree/Tree";
-import {
-    addItem,
-    initializeDataProvider,
-} from "@/components/tree/dataProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApi } from "@/lib/api";
-import { CirclePlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { FC } from "react";
 
 const FeedMain: FC<{
@@ -56,48 +53,43 @@ const FeedMain: FC<{
             return;
         }
 
-        addItem(dataProvider, items, name);
+        dataProvider.addItem("root", name);
     };
 
     return (
-        <div className="max-w-5xl mx-auto w-full h-full p-4">
-            <Tabs defaultValue="source" className="flex flex-col grow h-full">
+        <div className="max-w-3xl mx-auto w-full h-full p-4">
+            <Tabs
+                defaultValue="source"
+                className="flex flex-col gap-4 grow h-full"
+            >
                 <div className="flex items-center">
                     <TabsList>
                         <TabsTrigger value="source">Source</TabsTrigger>
                         <TabsTrigger value="more-info">More Info</TabsTrigger>
                     </TabsList>
                 </div>
-                <TabsContent value="source" className="py-4 h-full">
-                    <div className="gap-8 grid grid-cols-1 lg:grid-cols-2 w-full h-full">
-                        <div className="h-fit overflow-auto p-4 ring-1 w-full ring-ring/10 rounded bg-card flex flex-col gap-8">
-                            <div className="flex flex-row gap-2 justify-between items-center">
-                                <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                <TabsContent value="source" className="h-full">
+                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-6">
+                        <div className="flex flex-row gap-2 justify-between items-center">
+                            <div className="flex flex-col gap-1 items-start">
+                                <h1 className="text-xl font-semibold tracking-tight">
                                     {data.title}
                                 </h1>
-                                <Button
-                                    onClick={handleAddItem}
-                                    size="icon"
-                                    variant="ghost"
-                                >
-                                    <CirclePlus className="size-5" />
-                                    <span className="sr-only">Add item</span>
-                                </Button>
+                                <p className="text-sm text-muted-foreground">
+                                    Hold <kbd>Shift</kbd> to delete items
+                                </p>
                             </div>
-                            <TreeComponent
-                                items={items}
-                                provider={dataProvider}
-                            />
+                            <Button
+                                onClick={handleAddItem}
+                                size="icon"
+                                variant="secondary"
+                                className="ml-auto"
+                            >
+                                <Plus className="size-5" />
+                                <span className="sr-only">Add item</span>
+                            </Button>
                         </div>
-                        <div className="lg:max-w-xl w-full flex items-start justify-center h-fit">
-                            <div className="ring-1 ring-ring/10 w-full flex items-center justify-center rounded overflow-hidden">
-                                <img
-                                    src={data.banner_image}
-                                    alt="Banner"
-                                    className="w-full h-full object-contain"
-                                />
-                            </div>
-                        </div>
+                        <TreeComponent provider={dataProvider} />
                     </div>
                 </TabsContent>
                 <TabsContent value="more-info" className="py-4 h-full">

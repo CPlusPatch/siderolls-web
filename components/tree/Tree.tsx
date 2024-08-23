@@ -1,36 +1,31 @@
 import { ChevronRight } from "lucide-react";
 import type { FC } from "react";
 import {
-    type StaticTreeDataProvider,
+    type TreeItem as ComplexTreeItem,
     Tree,
     UncontrolledTreeEnvironment,
 } from "react-complex-tree";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import type { CustomTreeDataProvider } from "./DataProvider";
 import TreeItem from "./TreeItem";
 
-export interface Item {
-    index: string;
-    isFolder?: boolean;
-    children: string[];
-    data: {
-        title: string;
-        url?: string;
-        image?: {
-            src: string;
-            alt?: string;
-        };
+export type Item = ComplexTreeItem<{
+    title: string;
+    url?: string;
+    image?: {
+        src: string;
+        alt?: string;
     };
-}
+}>;
 
 export interface Items {
     [key: string]: Item;
 }
 
-const TreeComponent: FC<{ items: Items; provider: StaticTreeDataProvider }> = ({
-    items,
-    provider,
-}) => {
+const TreeComponent: FC<{
+    provider: CustomTreeDataProvider<Item["data"]>;
+}> = ({ provider }) => {
     return (
         <UncontrolledTreeEnvironment
             dataProvider={provider}
@@ -52,6 +47,12 @@ const TreeComponent: FC<{ items: Items; provider: StaticTreeDataProvider }> = ({
                     >
                         {children}
                     </div>
+                )}
+                renderDragBetweenLine={({ lineProps }) => (
+                    <div
+                        {...lineProps}
+                        className="h-0.5 rounded-lg bg-blue-500 w-full"
+                    />
                 )}
                 renderItemsContainer={({ children, containerProps }) => (
                     <ul
@@ -90,7 +91,8 @@ const TreeComponent: FC<{ items: Items; provider: StaticTreeDataProvider }> = ({
                             {...context.interactiveElementProps}
                             size="icon"
                             variant="ghost"
-                            className="!size-10"
+                            // -ml-11 and not 10 to account for the gap of 1 between the arrow and button
+                            className="!size-10 -ml-11 shrink-0"
                             type="button"
                         >
                             <ChevronRight
@@ -101,11 +103,11 @@ const TreeComponent: FC<{ items: Items; provider: StaticTreeDataProvider }> = ({
                             />
                         </Button>
                     ) : (
-                        <div className="size-10" />
+                        <div className="size-10 -ml-11 shrink-0" />
                     )
                 }
                 renderItem={(props) => (
-                    <TreeItem provider={provider} items={items} {...props} />
+                    <TreeItem provider={provider} {...props} />
                 )}
             />
         </UncontrolledTreeEnvironment>
