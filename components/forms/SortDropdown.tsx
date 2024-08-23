@@ -35,7 +35,7 @@ export const SortDropdown: FC<{
         <DropdownMenu>
             <DropdownMenuTrigger asChild={true}>
                 <Button variant="outline" size="sm" className="h-8 gap-1">
-                    <ListFilter className="h-3.5 w-3.5" />
+                    <ListFilter className="h-3.5 w-3.5" aria-hidden={true} />
                     <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                         Sort
                     </span>

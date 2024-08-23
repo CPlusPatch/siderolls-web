@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { GripVertical, Trash } from "lucide-react";
+import { ExternalLink, GripVertical, Image, Trash } from "lucide-react";
 import { type FC, type ReactNode, useEffect, useState } from "react";
 import type {
     TreeInformation,
@@ -21,18 +21,18 @@ const TreeItem: FC<{
     context: TreeItemRenderContext<string>;
     info: TreeInformation;
 }> = ({ provider, title, arrow, depth, context, children, item }) => {
-    const [isShiftPressed, setIsShiftPressed] = useState(false);
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Shift") {
-                setIsShiftPressed(true);
+            if (event.ctrlKey) {
+                setIsCtrlPressed(true);
             }
         };
 
         const handleKeyUp = (event: KeyboardEvent) => {
-            if (event.key === "Shift") {
-                setIsShiftPressed(false);
+            if (!event.ctrlKey) {
+                setIsCtrlPressed(false);
             }
         };
 
@@ -58,9 +58,33 @@ const TreeItem: FC<{
                     {...context.itemContainerWithoutChildrenProps}
                 >
                     {title}
+                    {/* Show icon if image or link */}
+                    {item.data.url && (
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="shrink-0"
+                            title="This item has a link"
+                        >
+                            <ExternalLink
+                                className="size-4"
+                                aria-hidden={true}
+                            />
+                        </Button>
+                    )}
+                    {item.data.image && (
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="shrink-0"
+                            title="This item has an image"
+                        >
+                            <Image className="size-4" aria-hidden={true} />
+                        </Button>
+                    )}
                 </div>
                 <Sidebar item={item} provider={provider} />
-                {isShiftPressed && (
+                {isCtrlPressed && (
                     <Button
                         size="icon"
                         variant="destructive"
@@ -68,8 +92,9 @@ const TreeItem: FC<{
                             provider.removeItem(String(item.index));
                         }}
                         className="shrink-0"
+                        title="Delete item"
                     >
-                        <Trash className="size-4" />
+                        <Trash className="size-4" aria-hidden={true} />
                     </Button>
                 )}
                 <Button
@@ -79,11 +104,12 @@ const TreeItem: FC<{
                     className="shrink-0 cursor-grab"
                     type="button"
                 >
-                    <GripVertical className="size-4" />
+                    <GripVertical className="size-4" aria-hidden={true} />
+                    <span className="sr-only">Drag handle</span>
                 </Button>
             </div>
             {item.data.image && (
-                <div className="flex justify items-center rounded overflow-hidden border ml-12">
+                <div className="flex justify items-center rounded overflow-hidden border ml-2">
                     <img
                         src={item.data.image.src}
                         alt={item.data.image.alt}

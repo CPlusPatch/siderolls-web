@@ -99,8 +99,12 @@ const TreeComponent: FC<{
                                 className={`size-4 duration-100 ${
                                     context.isExpanded ? "rotate-90" : ""
                                 }`}
+                                aria-hidden={true}
                                 {...context.arrowProps}
                             />
+                            <span className="sr-only">
+                                {context.isExpanded ? "Collapse" : "Expand"}
+                            </span>
                         </Button>
                     ) : (
                         <div className="size-10 -ml-11 shrink-0" />

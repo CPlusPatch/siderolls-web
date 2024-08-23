@@ -47,7 +47,8 @@ const Sidebar: FC<{
         <Sheet>
             <SheetTrigger asChild={true}>
                 <Button size="icon" variant="ghost" className="shrink-0">
-                    <MoreHorizontal className="size-4" />
+                    <MoreHorizontal className="size-4" aria-hidden={true} />
+                    <span className="sr-only">Edit item</span>
                 </Button>
             </SheetTrigger>
             <SheetContent className="h-screen flex flex-col w-full max-w-md">
@@ -84,7 +85,10 @@ const Sidebar: FC<{
                                 />
                             ) : (
                                 <>
-                                    <Image className="size-4" />
+                                    <Image
+                                        className="size-4"
+                                        aria-hidden={true}
+                                    />
                                     Drop image here
                                 </>
                             )}

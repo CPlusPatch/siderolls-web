@@ -41,7 +41,13 @@ const FeedMain: FC<{
         child3: {
             index: "child3",
             children: [],
-            data: { title: "Child item 3" },
+            data: {
+                title: "Child item 3",
+                image: {
+                    src: "https://images.unsplash.com/photo-1722619452730-acf4200bb818?q=90&w=1000&auto=format&fit=crop",
+                    alt: "A beautiful image",
+                },
+            },
         },
     };
 
@@ -69,14 +75,21 @@ const FeedMain: FC<{
                     </TabsList>
                 </div>
                 <TabsContent value="source" className="h-full">
-                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-6">
+                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
+                        <div className="flex items-center justify-center min-h-48 max-h-72 overflow-hidden w-full bg-muted rounded-lg">
+                            <img
+                                src={data.banner_image}
+                                alt=""
+                                className="w-full h-full object-fill"
+                            />
+                        </div>
                         <div className="flex flex-row gap-2 justify-between items-center">
                             <div className="flex flex-col gap-1 items-start">
                                 <h1 className="text-xl font-semibold tracking-tight">
                                     {data.title}
                                 </h1>
                                 <p className="text-sm text-muted-foreground">
-                                    Hold <kbd>Shift</kbd> to delete items
+                                    Hold <kbd>Ctrl</kbd> to delete items
                                 </p>
                             </div>
                             <Button

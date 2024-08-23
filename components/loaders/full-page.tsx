@@ -19,7 +19,10 @@ export const FullPageLoader: FC<{
             >
                 <DialogHeader className="flex flex-col justify-center items-center gap-4">
                     <DialogTitle className="sr-only">Loading</DialogTitle>
-                    <Loader2 className="animate-spin size-12" />
+                    <Loader2
+                        className="animate-spin size-12"
+                        aria-hidden={true}
+                    />
                     <DialogDescription className="text-xl text-muted-foreground sr-only">
                         {text}
                     </DialogDescription>

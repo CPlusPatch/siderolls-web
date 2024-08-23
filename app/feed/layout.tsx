@@ -60,12 +60,19 @@ const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
                             <ThemeToggle />
                         </div>
                         <div className="relative ml-auto flex-1">
-                            <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
+                            <Search
+                                className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground"
+                                aria-hidden={true}
+                            />
                             <Input
                                 type="search"
                                 placeholder="Search..."
+                                id="search"
                                 className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
                             />
+                            <label className="sr-only" htmlFor="search">
+                                Search
+                            </label>
                         </div>
                     </div>
                 </header>

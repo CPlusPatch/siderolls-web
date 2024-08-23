@@ -47,7 +47,7 @@ const FeedMain: FC = () => {
                                 mitt.emitter.emit("create-content");
                             }}
                         >
-                            <Plus className="size-4 mr-2" />
+                            <Plus className="size-4 mr-2" aria-hidden={true} />
                             Add content
                         </Button>
                     )}
@@ -76,7 +76,7 @@ const FeedMain: FC = () => {
                             variant="outline"
                             className="h-8 gap-1"
                         >
-                            <File className="h-3.5 w-3.5" />
+                            <File className="h-3.5 w-3.5" aria-hidden={true} />
                             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                                 Export
                             </span>
