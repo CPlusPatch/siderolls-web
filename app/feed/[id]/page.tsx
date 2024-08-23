@@ -24,29 +24,108 @@ const FeedMain: FC<{
         root: {
             index: "root",
             isFolder: true,
-            children: ["child1", "child2"],
-            data: { title: "Root item" },
+            children: ["homepage", "news", "blogs", "videos", "podcasts"],
+            data: { title: "Content Aggregation" },
         },
-        child1: {
-            index: "child1",
+        homepage: {
+            index: "homepage",
             children: [],
-            data: { title: "Child item 1", url: "https://example.com" },
+            data: { title: "Homepage", url: "https://example.com" },
         },
-        child2: {
-            index: "child2",
+        news: {
+            index: "news",
             isFolder: true,
-            children: ["child3"],
-            data: { title: "Child item 2" },
+            children: ["news1", "news2"],
+            data: { title: "News" },
         },
-        child3: {
-            index: "child3",
+        news1: {
+            index: "news1",
             children: [],
             data: {
-                title: "Child item 3",
+                title: "Breaking News",
+                url: "https://news.example.com/breaking",
                 image: {
-                    src: "https://images.unsplash.com/photo-1722619452730-acf4200bb818?q=90&w=1000&auto=format&fit=crop",
-                    alt: "A beautiful image",
+                    src: "https://blog.piercecountywa.gov/executive/files/2020/05/Breaking-News2.jpg.jpeg",
                 },
+            },
+        },
+        news2: {
+            index: "news2",
+            children: [],
+            data: {
+                title: "World News",
+                url: "https://news.example.com/world",
+            },
+        },
+        blogs: {
+            index: "blogs",
+            isFolder: true,
+            children: ["blog1", "blog2"],
+            data: { title: "Blogs" },
+        },
+        blog1: {
+            index: "blog1",
+            children: [],
+            data: { title: "Tech Blog", url: "https://blog.example.com/tech" },
+        },
+        blog2: {
+            index: "blog2",
+            children: [],
+            data: {
+                title: "Lifestyle Blog",
+                url: "https://blog.example.com/lifestyle",
+            },
+        },
+        videos: {
+            index: "videos",
+            isFolder: true,
+            children: ["video1", "video2"],
+            data: { title: "Videos" },
+        },
+        video1: {
+            index: "video1",
+            children: [],
+            data: {
+                title: "iOS 18 Hands-On: Top 5 Features!",
+                url: "https://www.youtube.com/watch?v=ArcI4A5nvBo",
+                image: {
+                    src: "https://i3.ytimg.com/vi/ArcI4A5nvBo/maxresdefault.jpg",
+                    alt: "Tech Review Thumbnail",
+                },
+            },
+        },
+        video2: {
+            index: "video2",
+            children: [],
+            data: {
+                title: "Travel Vlog",
+                url: "https://videos.example.com/travel-vlog",
+                image: {
+                    src: "https://blog.assets.thediscoverer.com/2019/09/tourist-vlogging.jpg",
+                    alt: "Travel Vlog Thumbnail",
+                },
+            },
+        },
+        podcasts: {
+            index: "podcasts",
+            isFolder: true,
+            children: ["podcast1", "podcast2"],
+            data: { title: "Podcasts" },
+        },
+        podcast1: {
+            index: "podcast1",
+            children: [],
+            data: {
+                title: "Tech Podcast",
+                url: "https://podcasts.example.com/tech",
+            },
+        },
+        podcast2: {
+            index: "podcast2",
+            children: [],
+            data: {
+                title: "Health Podcast",
+                url: "https://podcasts.example.com/health",
             },
         },
     };

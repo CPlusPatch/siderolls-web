@@ -74,7 +74,7 @@ const Sidebar: FC<{
                         <h4 className="font-medium leading-none">Image</h4>
                         <div
                             {...getRootProps()}
-                            className="flex h-[150px] w-full items-center justify-center rounded-md border border-dashed text-sm flex-col gap-2"
+                            className="flex h-[150px] w-full items-center justify-center overflow-hidden rounded-md border border-dashed text-sm flex-col gap-2"
                         >
                             <input {...getInputProps()} />
                             {item.data.image ? (
