@@ -32,7 +32,7 @@
         "cookies-next": "^4.2.1",
         "framer-motion": "^11.3.29",
         "is-hotkey": "^0.2.0",
-        "lucide-react": "^0.429.0",
+        "lucide-react": "^0.436.0",
         "masonic": "^4.0.1",
         "mitt": "^3.0.1",
         "nanoid": "^5.0.7",
