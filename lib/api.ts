@@ -5,10 +5,11 @@ import useSWR from "swr";
 export interface DataRow {
     id: number;
     tags: string[];
-    banner_image: string;
+    image: string;
     links: string[];
     content: string;
     title: string;
+    data: unknown;
     created_at: string;
 }
 
@@ -53,18 +54,20 @@ const createApiClient = (config: ApiConfig) => {
         getRowById: (id: string) => fetchJson<DataRow>(`/api/v1/rows/${id}`),
         createRow: (data: {
             tags?: string[];
-            banner_image?: string;
+            image?: string;
             links?: string[];
             content?: string;
-            title: string;
+            title?: string;
+            data?: unknown;
         }) =>
             postJson<
                 {
                     tags?: string[];
-                    banner_image?: string;
+                    image?: string;
                     links?: string[];
                     content?: string;
-                    title: string;
+                    title?: string;
+                    data?: unknown;
                 },
                 DataRow
             >("/api/v1/rows", data),
@@ -97,7 +100,7 @@ export const useApi = () => {
             useSWR(["row", id], () => apiClient.getRowById(id)),
         createRow: (data: {
             tags?: string[];
-            banner_image?: string;
+            image?: string;
             links?: string[];
             content?: string;
             title: string;

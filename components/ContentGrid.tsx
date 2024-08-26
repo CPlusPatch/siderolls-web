@@ -28,9 +28,9 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
             <Link href={`/feed/${item.id}`}>
                 <div className="rounded relative border bg-card/80 text-card-foreground shadow-sm overflow-hidden">
                     <div className="flex items-center justify-center w-full h-full bg-accent/10">
-                        {item.banner_image ? (
+                        {item.image ? (
                             <img
-                                src={item.banner_image}
+                                src={item.image}
                                 alt={item.title}
                                 className="w-full"
                             />
@@ -80,10 +80,11 @@ export const ContentGridItemSkeleton: FC = () => (
             id: 3,
             title: "",
             created_at: "",
-            banner_image: "",
+            image: "",
             tags: [],
             links: [],
             content: "",
+            data: {},
         }}
     />
 );

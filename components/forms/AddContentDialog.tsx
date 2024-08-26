@@ -53,7 +53,7 @@ export function AddContentDialog() {
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         const output = await api.createRow({
             title: data.title,
-            banner_image: data.image,
+            image: data.image,
             content: data.content,
             tags: [],
             links: [],
