@@ -1,6 +1,7 @@
 {
     "name": "sidepages-web",
     "version": "0.1.0",
+    "homepage": "https://sidepages.cpluspatch.dev",
     "type": "module",
     "private": true,
     "scripts": {

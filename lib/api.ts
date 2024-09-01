@@ -1,6 +1,8 @@
+"use client";
+
 import { env } from "next-runtime-env";
-import { useMemo } from "react";
-import useSWR from "swr";
+import { useEffect, useState } from "react";
+import { BaseClient, type Output } from "./client";
 
 export interface DataRow {
     id: number;
@@ -13,152 +15,38 @@ export interface DataRow {
     created_at: string;
 }
 
-interface ApiConfig {
-    baseUrl: string;
-}
-
-// API client
-const createApiClient = (config: ApiConfig) => {
-    const fetchJson = async <T>(url: string): Promise<T> => {
-        const response = await fetch(`${config.baseUrl}${url}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    };
-
-    const postJson = async <T, R>(url: string, data: T): Promise<R> => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            throw new Error("No token found in localStorage");
-        }
-
-        const response = await fetch(`${config.baseUrl}${url}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return response.json();
-    };
-
-    const putJson = async <T, R>(url: string, data: T): Promise<R> => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            throw new Error("No token found in localStorage");
-        }
-
-        const response = await fetch(`${config.baseUrl}${url}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return response.json();
-    };
-
-    return {
-        getAllRows: () => fetchJson<DataRow[]>("/api/v1/rows"),
-        getRowById: (id: string) => fetchJson<DataRow>(`/api/v1/rows/${id}`),
-        createRow: (data: {
-            tags?: string[];
-            image?: string;
-            links?: string[];
-            content?: string;
-            title?: string;
-            data?: unknown;
-        }) =>
-            postJson<
-                {
-                    tags?: string[];
-                    image?: string;
-                    links?: string[];
-                    content?: string;
-                    title?: string;
-                    data?: unknown;
-                },
-                DataRow
-            >("/api/v1/rows", data),
-        editRow: (
-            id: string,
-            data: {
-                tags?: string[];
-                image?: string;
-                links?: string[];
-                content?: string;
-                title?: string;
-                data?: unknown;
-            },
-        ) =>
-            putJson<
-                {
-                    tags?: string[];
-                    image?: string;
-                    links?: string[];
-                    content?: string;
-                    title?: string;
-                    data?: unknown;
-                },
-                DataRow
-            >(`/api/v1/rows/${id}`, data),
-    };
-};
-
-// Custom hook for API interactions
-export const useApi = () => {
-    const apiUrl = env("NEXT_PUBLIC_API_URL");
-
-    if (!apiUrl) {
-        throw new TypeError(
-            "The NEXT_PUBLIC_API_URL environment variable is not set.",
+export class Client extends BaseClient {
+    constructor() {
+        super(
+            new URL(env("NEXT_PUBLIC_API_URL") || ""),
+            localStorage?.getItem("token") ?? "",
         );
     }
 
-    const apiClient = useMemo(
-        () =>
-            createApiClient({
-                baseUrl: apiUrl,
-            }),
-        [apiUrl],
-    );
+    public getRows(extra?: RequestInit): Promise<Output<DataRow[]>> {
+        return this.get<DataRow[]>("/api/v1/rows", extra);
+    }
 
-    return {
-        // biome-ignore lint/correctness/useHookAtTopLevel: Biome is incorrect here
-        useGetAllRows: () => useSWR("rows", apiClient.getAllRows),
-        useGetRowById: (id: string) =>
-            // biome-ignore lint/correctness/useHookAtTopLevel: Biome is incorrect here
-            useSWR(["row", id], () => apiClient.getRowById(id)),
-        createRow: (data: {
-            tags?: string[];
-            image?: string;
-            links?: string[];
-            content?: string;
-            title: string;
-        }) => apiClient.createRow(data),
-        editRow: (
-            id: string,
-            data: {
-                tags?: string[];
-                image?: string;
-                links?: string[];
-                content?: string;
-                title?: string;
-                data?: unknown;
-            },
-        ) => apiClient.editRow(id, data),
-    };
+    public getRow(id: string, extra?: RequestInit): Promise<Output<DataRow>> {
+        return this.get<DataRow>(`/api/v1/rows/${id}`, extra);
+    }
+
+    public createRow(data: Partial<DataRow>, extra?: RequestInit) {
+        return this.post<DataRow>("/api/v1/rows", data, extra);
+    }
+
+    public editRow(id: string, data: Partial<DataRow>, extra?: RequestInit) {
+        return this.put<DataRow>(`/api/v1/rows/${id}`, data, extra);
+    }
+}
+
+// Only load client on the client side
+export const useClient = () => {
+    const [client, setClient] = useState<Client | null>(null);
+
+    useEffect(() => {
+        setClient(new Client());
+    }, []);
+
+    return client;
 };

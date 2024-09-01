@@ -5,13 +5,26 @@ import { useMitt } from "@/components/events/useMitt";
 import { SortDropdown } from "@/components/forms/SortDropdown";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useApi } from "@/lib/api";
+import { type DataRow, useClient } from "@/lib/api";
+import type { Output } from "@/lib/client";
 import { File, Plus } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
 
 const FeedMain: FC = () => {
-    const api = useApi();
-    const { data } = api.useGetAllRows();
+    const client = useClient();
+    const [output, setOutput] = useState<Output<DataRow[]> | undefined>(
+        undefined,
+    );
+
+    useEffect(() => {
+        const fetchRows = async () => {
+            const response = await client?.getRows();
+            setOutput(response);
+        };
+
+        fetchRows();
+    }, [client]);
+
     const [sortedValue, setSortedValue] = useState<"created_at" | "title">(
         "created_at",
     );
@@ -84,9 +97,9 @@ const FeedMain: FC = () => {
                     </div>
                 </div>
                 <TabsContent value="all" className="py-4 h-full">
-                    {data && data.length > 0 ? (
+                    {output?.data && output?.data.length > 0 ? (
                         <ContentGrid
-                            items={data}
+                            items={output?.data}
                             /* sort={(a, b) => {
                                 if (sortedValue === "created_at") {
                                     return sortDirection === "asc"

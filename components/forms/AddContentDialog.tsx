@@ -17,7 +17,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useApi } from "@/lib/api";
+import { useClient } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -34,7 +34,7 @@ const formSchema = z.object({
 
 export function AddContentDialog() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const api = useApi();
+    const client = useClient();
     const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -51,7 +51,7 @@ export function AddContentDialog() {
     });
 
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
-        const output = await api.createRow({
+        const output = await client?.createRow({
             title: data.title,
             image: data.image,
             content: data.content,
@@ -62,7 +62,7 @@ export function AddContentDialog() {
         setIsDialogOpen(false);
 
         // Go to /feed/[id]
-        router.push(`/feed/${output.id}`);
+        router.push(`/feed/${output?.data.id}`);
     };
 
     return (
