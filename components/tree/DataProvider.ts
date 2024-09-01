@@ -9,15 +9,22 @@ import type {
 import { EventEmitter } from "./EventEmitter";
 import type { Item, Items } from "./Tree";
 
-export const initializeDataProvider = (items: Items) => {
-    return new CustomTreeDataProvider(items, (item, newName) => ({
-        ...item,
-        data: { ...item.data, title: newName },
-    }));
+export const initializeDataProvider = (
+    items: Items,
+    hooks: CustomTreeDataProvider["hooks"],
+) => {
+    return new CustomTreeDataProvider(
+        items,
+        (item, newName) => ({
+            ...item,
+            data: { ...item.data, title: newName },
+        }),
+        hooks,
+    );
 };
 
 export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
-    private data: ExplicitDataSource;
+    public data: ExplicitDataSource;
 
     /** Emit an event with the changed item ids to notify the tree view about changes. */
     public readonly onDidChangeTreeDataEmitter = new EventEmitter<
@@ -29,6 +36,9 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
     constructor(
         items: Record<TreeItemIndex, TreeItem<T>>,
         setItemName?: (item: TreeItem<T>, newName: string) => TreeItem<T>,
+        public hooks?: {
+            onEditItem?: () => void;
+        },
     ) {
         this.data = { items };
         this.setItemName = setItemName;
@@ -56,6 +66,8 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
 
         this.onDidChangeTreeDataEmitter.emit([itemId]);
 
+        this.hooks?.onEditItem?.();
+
         return Promise.resolve();
     }
 
@@ -75,6 +87,8 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
             this.data.items[item.index] = this.setItemName(item, name);
             this.onDidChangeTreeDataEmitter.emit([item.index]);
         }
+
+        this.hooks?.onEditItem?.();
 
         return Promise.resolve();
     }
@@ -96,6 +110,8 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
 
         this.onDidChangeTreeDataEmitter.emit([parentItemId]);
 
+        this.hooks?.onEditItem?.();
+
         return Promise.resolve(newItem.index);
     }
 
@@ -115,6 +131,8 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
         if (parentItemId) {
             this.onDidChangeTreeDataEmitter.emit([parentItemId]);
         }
+
+        this.hooks?.onEditItem?.();
     }
 
     public async moveItem(
@@ -141,6 +159,8 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
         } else {
             this.onDidChangeTreeDataEmitter.emit([newParentItemId]);
         }
+
+        this.hooks?.onEditItem?.();
     }
 
     public editItem(
@@ -152,6 +172,8 @@ export class CustomTreeDataProvider<T = unknown> implements TreeDataProvider {
             ...data,
         };
         this.onDidChangeTreeDataEmitter.emit([itemId]);
+
+        this.hooks?.onEditItem?.();
 
         return Promise.resolve();
     }

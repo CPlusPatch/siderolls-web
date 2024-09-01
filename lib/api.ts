@@ -49,6 +49,28 @@ const createApiClient = (config: ApiConfig) => {
         return response.json();
     };
 
+    const putJson = async <T, R>(url: string, data: T): Promise<R> => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            throw new Error("No token found in localStorage");
+        }
+
+        const response = await fetch(`${config.baseUrl}${url}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response.json();
+    };
+
     return {
         getAllRows: () => fetchJson<DataRow[]>("/api/v1/rows"),
         getRowById: (id: string) => fetchJson<DataRow>(`/api/v1/rows/${id}`),
@@ -71,6 +93,28 @@ const createApiClient = (config: ApiConfig) => {
                 },
                 DataRow
             >("/api/v1/rows", data),
+        editRow: (
+            id: string,
+            data: {
+                tags?: string[];
+                image?: string;
+                links?: string[];
+                content?: string;
+                title?: string;
+                data?: unknown;
+            },
+        ) =>
+            putJson<
+                {
+                    tags?: string[];
+                    image?: string;
+                    links?: string[];
+                    content?: string;
+                    title?: string;
+                    data?: unknown;
+                },
+                DataRow
+            >(`/api/v1/rows/${id}`, data),
     };
 };
 
@@ -105,5 +149,16 @@ export const useApi = () => {
             content?: string;
             title: string;
         }) => apiClient.createRow(data),
+        editRow: (
+            id: string,
+            data: {
+                tags?: string[];
+                image?: string;
+                links?: string[];
+                content?: string;
+                title?: string;
+                data?: unknown;
+            },
+        ) => apiClient.editRow(id, data),
     };
 };

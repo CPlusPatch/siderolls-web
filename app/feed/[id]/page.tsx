@@ -130,7 +130,13 @@ const FeedMain: FC<{
         },
     };
 
-    const dataProvider = initializeDataProvider(items);
+    const dataProvider = initializeDataProvider((data.data as Items) || items, {
+        onEditItem: () => {
+            api.editRow(params.id, {
+                data: dataProvider.data.items,
+            });
+        },
+    });
 
     const handleAddItem = () => {
         const name = prompt("New item name");
