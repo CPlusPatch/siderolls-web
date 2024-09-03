@@ -142,14 +142,34 @@ const FeedMain: FC<{
         },
     };
 
-    const dataProvider = initializeDataProvider(
-        (output.data.data as Items) || items,
-        {
-            onEditItem: () => {
-                client?.editRow(params.id, {
-                    data: dataProvider.data.items,
-                });
+    const onEditItem = () => {
+        client?.editRow(params.id, {
+            data: {
+                main: dataProvider.data.items,
+                author: authorDataProvider.data.items,
+                misc: miscDataProvider.data.items,
             },
+        });
+    };
+
+    const dataProvider = initializeDataProvider(
+        (output.data.data as Record<string, Items> | null)?.main || items,
+        {
+            onEditItem,
+        },
+    );
+
+    const authorDataProvider = initializeDataProvider(
+        (output.data.data as Record<string, Items> | null)?.author || items,
+        {
+            onEditItem,
+        },
+    );
+
+    const miscDataProvider = initializeDataProvider(
+        (output.data.data as Record<string, Items> | null)?.misc || items,
+        {
+            onEditItem,
         },
     );
 
@@ -171,6 +191,8 @@ const FeedMain: FC<{
                 <div className="flex items-center">
                     <TabsList>
                         <TabsTrigger value="source">Source</TabsTrigger>
+                        <TabsTrigger value="author">Author</TabsTrigger>
+                        <TabsTrigger value="misc">Misc</TabsTrigger>
                         <TabsTrigger value="more-info">More Info</TabsTrigger>
                     </TabsList>
                 </div>
@@ -203,6 +225,54 @@ const FeedMain: FC<{
                             </Button>
                         </div>
                         <TreeComponent provider={dataProvider} />
+                    </div>
+                </TabsContent>
+                <TabsContent value="author" className="h-full">
+                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
+                        <div className="flex flex-row gap-2 justify-between items-center">
+                            <div className="flex flex-col gap-1 items-start">
+                                {/* <h1 className="text-xl font-semibold tracking-tight">
+                                    {output?.data.title}
+                                </h1> */}
+                                <p className="text-sm text-muted-foreground">
+                                    Hold <kbd>Ctrl</kbd> to delete items
+                                </p>
+                            </div>
+                            <Button
+                                onClick={handleAddItem}
+                                size="icon"
+                                variant="secondary"
+                                className="ml-auto"
+                            >
+                                <Plus className="size-5" />
+                                <span className="sr-only">Add item</span>
+                            </Button>
+                        </div>
+                        <TreeComponent provider={authorDataProvider} />
+                    </div>
+                </TabsContent>
+                <TabsContent value="misc" className="h-full">
+                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
+                        <div className="flex flex-row gap-2 justify-between items-center">
+                            <div className="flex flex-col gap-1 items-start">
+                                {/* <h1 className="text-xl font-semibold tracking-tight">
+                                    {output?.data.title}
+                                </h1> */}
+                                <p className="text-sm text-muted-foreground">
+                                    Hold <kbd>Ctrl</kbd> to delete items
+                                </p>
+                            </div>
+                            <Button
+                                onClick={handleAddItem}
+                                size="icon"
+                                variant="secondary"
+                                className="ml-auto"
+                            >
+                                <Plus className="size-5" />
+                                <span className="sr-only">Add item</span>
+                            </Button>
+                        </div>
+                        <TreeComponent provider={miscDataProvider} />
                     </div>
                 </TabsContent>
                 <TabsContent value="more-info" className="py-4 h-full">
