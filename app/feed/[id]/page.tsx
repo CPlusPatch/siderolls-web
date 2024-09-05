@@ -183,7 +183,7 @@ const FeedMain: FC<{
     };
 
     return (
-        <div className="max-w-3xl mx-auto w-full h-full p-4">
+        <div className="max-w-6xl mx-auto w-full h-full p-4">
             <Tabs
                 defaultValue="source"
                 className="flex flex-col gap-4 grow h-full"
@@ -197,7 +197,7 @@ const FeedMain: FC<{
                     </TabsList>
                 </div>
                 <TabsContent value="source" className="h-full">
-                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
+                    <div className="mx-auto p-4 flex flex-col lg:flex-row gap-10 lg:divide-x-2">
                         <div className="flex items-center justify-center min-h-48 max-h-72 overflow-hidden w-full bg-muted rounded-lg">
                             <img
                                 src={output?.data.image}
@@ -205,26 +205,28 @@ const FeedMain: FC<{
                                 className="w-full h-full object-fill"
                             />
                         </div>
-                        <div className="flex flex-row gap-2 justify-between items-center">
-                            <div className="flex flex-col gap-1 items-start">
-                                <h1 className="text-xl font-semibold tracking-tight">
-                                    {output?.data.title}
-                                </h1>
-                                <p className="text-sm text-muted-foreground">
-                                    Hold <kbd>Ctrl</kbd> to delete items
-                                </p>
+                        <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16">
+                            <div className="flex flex-row gap-2 justify-between items-center">
+                                <div className="flex flex-col gap-1 items-start">
+                                    <h1 className="text-xl font-semibold tracking-tight">
+                                        {output?.data.title}
+                                    </h1>
+                                    <p className="text-sm text-muted-foreground">
+                                        Hold <kbd>Ctrl</kbd> to delete items
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={handleAddItem}
+                                    size="icon"
+                                    variant="secondary"
+                                    className="ml-auto"
+                                >
+                                    <Plus className="size-5" />
+                                    <span className="sr-only">Add item</span>
+                                </Button>
                             </div>
-                            <Button
-                                onClick={handleAddItem}
-                                size="icon"
-                                variant="secondary"
-                                className="ml-auto"
-                            >
-                                <Plus className="size-5" />
-                                <span className="sr-only">Add item</span>
-                            </Button>
+                            <TreeComponent provider={dataProvider} />
                         </div>
-                        <TreeComponent provider={dataProvider} />
                     </div>
                 </TabsContent>
                 <TabsContent value="author" className="h-full">
