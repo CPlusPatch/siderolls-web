@@ -1,4 +1,4 @@
-FROM oven/bun:1.1.24-alpine AS base
+FROM oven/bun:1.1.26-alpine AS base
 
 FROM base AS deps
 

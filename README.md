@@ -24,7 +24,7 @@ See the [**Compatibility**](#compatibility) section for the supported environmen
 
 #### For Development
 
-- [**Bun**](https://bun.sh) version `1.1.24` or higher.
+- [**Bun**](https://bun.sh) version `1.1.26` or higher.
 
 ### Installation
 
