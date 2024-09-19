@@ -16,6 +16,9 @@ export type Item = ComplexTreeItem<{
     image?: {
         src: string;
         alt?: string;
+        name?: string;
+        size?: number;
+        type?: string;
     };
 }>;
 

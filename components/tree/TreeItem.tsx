@@ -7,9 +7,17 @@ import type {
     TreeInformation,
     TreeItemRenderContext,
 } from "react-complex-tree";
+import { Card, CardTitle } from "../ui/card";
 import type { CustomTreeDataProvider } from "./DataProvider";
 import Sidebar from "./Sidebar";
 import type { Item } from "./Tree";
+
+const byteValueNumberFormatter = Intl.NumberFormat("en", {
+    notation: "compact",
+    style: "unit",
+    unit: "byte",
+    unitDisplay: "narrow",
+});
 
 const TreeItem: FC<{
     provider: CustomTreeDataProvider<Item["data"]>;
@@ -54,10 +62,12 @@ const TreeItem: FC<{
             <div className="flex flex-row items-center gap-1">
                 {arrow}
                 <div
-                    className="w-full justify-start text-left text-primary underline-offset-4 inline-flex items-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground leading-6"
+                    className="w-full justify-start text-left text-primary underline-offset-4 inline-flex items-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground leading-6 overflow-hidden"
                     {...context.itemContainerWithoutChildrenProps}
                 >
-                    {title}
+                    <span className="overflow-hidden text-ellipsis mr-auto">
+                        {title}
+                    </span>
                     {/* Show icon if image or link */}
                     {item.data.url && (
                         <Button
@@ -109,13 +119,29 @@ const TreeItem: FC<{
                 </Button>
             </div>
             {item.data.image && (
-                <div className="flex justify items-center rounded overflow-hidden border ml-2">
-                    <img
-                        src={item.data.image.src}
-                        alt={item.data.image.alt}
-                        className="max-w-full w-full h-full object-cover"
-                    />
-                </div>
+                <Card className="flex justify-between items-stretch p-4 overflow-hidden gap-4">
+                    <div className="grow flex flex-col justify-center items-start py-4 gap-2">
+                        <CardTitle className="text-lg font-semibold line-clamp-1 overflow-ellipsis">
+                            {item.data.image.name}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                            {/* Formatted byte size:  */}
+                            {byteValueNumberFormatter.format(
+                                item.data.image.size ?? 0,
+                            )}
+                        </p>
+                        <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                            {item.data.image.type}
+                        </code>
+                    </div>
+                    <div className="shrink-0 w-1/3 max-w-36 flex items-center justify-center">
+                        <img
+                            src={item.data.image.src}
+                            alt={item.data.image.alt}
+                            className="max-w-full w-full h-auto object-cover rounded"
+                        />
+                    </div>
+                </Card>
             )}
             {children}
         </li>

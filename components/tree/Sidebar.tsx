@@ -32,7 +32,13 @@ const Sidebar: FC<{
                 reader.onload = () => {
                     const src = reader.result as string;
                     provider.editItem(String(item.index), {
-                        image: { src, alt: file.name },
+                        image: {
+                            src,
+                            alt: file.name,
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                        },
                     });
                 };
                 reader.readAsDataURL(file);

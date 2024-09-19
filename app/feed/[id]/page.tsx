@@ -58,6 +58,9 @@ const FeedMain: FC<{
                 url: "https://news.example.com/breaking",
                 image: {
                     src: "https://blog.piercecountywa.gov/executive/files/2020/05/Breaking-News2.jpg.jpeg",
+                    name: "Breaking-News2.jpg",
+                    size: 2050110,
+                    type: "image/jpeg",
                 },
             },
         },
@@ -103,6 +106,9 @@ const FeedMain: FC<{
                 image: {
                     src: "https://i3.ytimg.com/vi/ArcI4A5nvBo/maxresdefault.jpg",
                     alt: "Tech Review Thumbnail",
+                    size: 186362,
+                    type: "image/jpeg",
+                    name: "maxresdefault.jpg",
                 },
             },
         },
@@ -115,6 +121,9 @@ const FeedMain: FC<{
                 image: {
                     src: "https://blog.assets.thediscoverer.com/2019/09/tourist-vlogging.jpg",
                     alt: "Travel Vlog Thumbnail",
+                    size: 80684,
+                    name: "tourist-vlogging.jpg",
+                    type: "image/jpeg",
                 },
             },
         },
@@ -205,7 +214,7 @@ const FeedMain: FC<{
                                 className="w-full h-full object-fill"
                             />
                         </div>
-                        <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16">
+                        <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16 overflow-hidden">
                             <div className="flex flex-row gap-2 justify-between items-center">
                                 <div className="flex flex-col gap-1 items-start">
                                     <h1 className="text-xl font-semibold tracking-tight">
