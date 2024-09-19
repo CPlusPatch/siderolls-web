@@ -65,7 +65,7 @@ const TreeItem: FC<{
                     className="w-full justify-start text-left text-primary underline-offset-4 inline-flex items-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground leading-6 overflow-hidden h-10"
                     {...context.itemContainerWithoutChildrenProps}
                 >
-                    <span className="overflow-hidden text-ellipsis mr-auto">
+                    <span className="overflow-hidden text-ellipsis w-full">
                         {title}
                     </span>
                     {/* Show icon if image or link */}

@@ -100,6 +100,10 @@ const FeedMain: FC = () => {
                     {output?.data && output?.data.length > 0 ? (
                         <ContentGrid
                             items={output?.data}
+                            onDelete={async (id) => {
+                                await client?.deleteRow(id);
+                                window.location.reload();
+                            }}
                             sort={(a, b) => {
                                 if (sortedValue === "created_at") {
                                     return sortDirection === "asc"

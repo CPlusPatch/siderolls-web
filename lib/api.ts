@@ -38,6 +38,10 @@ export class Client extends BaseClient {
     public editRow(id: string, data: Partial<DataRow>, extra?: RequestInit) {
         return this.put<DataRow>(`/api/v1/rows/${id}`, data, extra);
     }
+
+    public deleteRow(id: string, extra?: RequestInit) {
+        return this.delete<DataRow>(`/api/v1/rows/${id}`, extra);
+    }
 }
 
 // Only load client on the client side

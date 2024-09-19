@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { DataRow } from "@/lib/api";
 import { Icon } from "@iconify-icon/react";
-import { Edit, Folder } from "lucide-react";
+import { Edit, Folder, Trash } from "lucide-react";
 import { Masonry } from "masonic";
 import Link from "next/link";
 import type { FC } from "react";
@@ -124,7 +124,7 @@ export const ContentGrid: FC<GridProps & ContentItemActions> = ({
 
 export const GridItemContextMenu: FC<
     { item: DataRow } & ContentItemActions
-> = ({ item }) => {
+> = ({ item, onDelete }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild={true}>
@@ -140,6 +140,11 @@ export const GridItemContextMenu: FC<
                     <Edit className="mr-2 h-4 w-4" />
                     <span>Edit</span>
                     <DropdownMenuShortcut>⌘I</DropdownMenuShortcut>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDelete?.(String(item.id))}>
+                    <Trash className="mr-2 h-4 w-4" />
+                    <span>Delete</span>
+                    <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
