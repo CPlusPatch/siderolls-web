@@ -115,7 +115,7 @@ const FeedMain: FC<{
             index: "root",
             isFolder: true,
             children: ["homepage", "news", "blogs", "videos", "podcasts"],
-            data: { title: "Content Aggregation" },
+            data: { title: "Main" },
         },
         homepage: {
             index: "homepage",
