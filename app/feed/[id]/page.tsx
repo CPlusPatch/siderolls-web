@@ -89,6 +89,22 @@ const FeedMain: FC<{
         const fetchRow = async () => {
             const response = await client?.getRow(params.id);
             setOutput(response);
+
+            const data = response?.data.data as Record<string, Items> | null;
+
+            if (data === undefined) {
+                return;
+            }
+
+            setDataProviders(
+                Object.values(
+                    data === null
+                        ? {
+                              Main: items,
+                          }
+                        : data,
+                ).map((items) => initializeDataProvider(items, { onEditItem })),
+            );
         };
 
         fetchRow();
@@ -230,17 +246,6 @@ const FeedMain: FC<{
     const [dataProviders, setDataProviders] = useState<
         ReturnType<typeof initializeDataProvider>[]
     >([]);
-
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    useEffect(() => {
-        setDataProviders(
-            Object.values(
-                (output?.data.data as Record<string, Items> | null) ?? {
-                    Main: items,
-                },
-            ).map((items) => initializeDataProvider(items, { onEditItem })),
-        );
-    }, [output]);
 
     const [currentProviderIndex, setCurrentProviderIndex] = useState(0);
 
