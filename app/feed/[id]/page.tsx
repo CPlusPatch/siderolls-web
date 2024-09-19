@@ -3,11 +3,77 @@ import { initializeDataProvider } from "@/components/tree/DataProvider";
 import TreeComponent, { type Items } from "@/components/tree/Tree";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type DataRow, useClient } from "@/lib/api";
 import type { Output } from "@/lib/client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const FormSchema = z.object({
+    title: z.string().min(1, {
+        message: "Title must be at least 1 character.",
+    }),
+});
+
+const UseItemForm: FC<{
+    onSubmit: (data: z.infer<typeof FormSchema>) => void;
+}> = ({ onSubmit }) => {
+    const form = useForm<z.infer<typeof FormSchema>>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: {
+            title: "",
+        },
+    });
+
+    return (
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full space-y-12"
+            >
+                <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Current Goals" {...field} />
+                            </FormControl>
+                            <FormDescription>
+                                This will appear as the title of the new tree.
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <Button type="submit" className="w-full">
+                    Submit
+                </Button>
+            </form>
+        </Form>
+    );
+};
 
 const FeedMain: FC<{
     params: {
@@ -27,10 +93,6 @@ const FeedMain: FC<{
 
         fetchRow();
     }, [client, params.id]);
-
-    if (!output?.data) {
-        return null;
-    }
 
     const items: Items = {
         root: {
@@ -152,35 +214,35 @@ const FeedMain: FC<{
     };
 
     const onEditItem = () => {
-        client?.editRow(params.id, {
-            data: {
-                main: dataProvider.data.items,
-                author: authorDataProvider.data.items,
-                misc: miscDataProvider.data.items,
-            },
+        setDataProviders((prevDataProviders) => {
+            client?.editRow(params.id, {
+                data: Object.fromEntries(
+                    prevDataProviders.map((provider) => [
+                        provider.data.items.root.data.title,
+                        provider.data.items,
+                    ]),
+                ),
+            });
+            return prevDataProviders;
         });
     };
 
-    const dataProvider = initializeDataProvider(
-        (output.data.data as Record<string, Items> | null)?.main || items,
-        {
-            onEditItem,
-        },
-    );
+    const [dataProviders, setDataProviders] = useState<
+        ReturnType<typeof initializeDataProvider>[]
+    >([]);
 
-    const authorDataProvider = initializeDataProvider(
-        (output.data.data as Record<string, Items> | null)?.author || items,
-        {
-            onEditItem,
-        },
-    );
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
+        setDataProviders(
+            Object.values(
+                (output?.data.data as Record<string, Items> | null) ?? {
+                    Main: items,
+                },
+            ).map((items) => initializeDataProvider(items, { onEditItem })),
+        );
+    }, [output]);
 
-    const miscDataProvider = initializeDataProvider(
-        (output.data.data as Record<string, Items> | null)?.misc || items,
-        {
-            onEditItem,
-        },
-    );
+    const [currentProviderIndex, setCurrentProviderIndex] = useState(0);
 
     const handleAddItem = () => {
         const name = prompt("New item name");
@@ -188,130 +250,182 @@ const FeedMain: FC<{
             return;
         }
 
-        dataProvider.addItem("root", name);
+        setDataProviders((prevDataProviders) => {
+            if (prevDataProviders[currentProviderIndex]) {
+                prevDataProviders[currentProviderIndex].addItem("root", name);
+            } else {
+                console.error("No data provider found");
+            }
+            return prevDataProviders;
+        });
     };
 
     return (
         <div className="max-w-6xl mx-auto w-full h-full p-4">
-            <Tabs
-                defaultValue="source"
-                className="flex flex-col gap-4 grow h-full"
-            >
-                <div className="flex items-center">
-                    <TabsList>
-                        <TabsTrigger value="source">Source</TabsTrigger>
-                        <TabsTrigger value="author">Author</TabsTrigger>
-                        <TabsTrigger value="misc">Misc</TabsTrigger>
-                        <TabsTrigger value="more-info">More Info</TabsTrigger>
-                    </TabsList>
-                </div>
-                <TabsContent value="source" className="h-full">
-                    <div className="mx-auto p-4 flex flex-col lg:flex-row gap-10 lg:divide-x-2">
-                        <div className="flex items-center justify-center min-h-48 max-h-72 overflow-hidden w-full bg-muted rounded-lg">
-                            <img
-                                src={output?.data.image}
-                                alt=""
-                                className="w-full h-full object-fill"
+            {dataProviders[0] && (
+                <Tabs
+                    onValueChange={(value) => {
+                        setCurrentProviderIndex(
+                            dataProviders.findIndex(
+                                (provider) =>
+                                    provider.data.items.root.data.title ===
+                                    value,
+                            ),
+                        );
+                    }}
+                    defaultValue={dataProviders[0].data.items.root.data.title}
+                    className="flex flex-col gap-4 grow h-full"
+                >
+                    <div className="flex items-center">
+                        <TabsList>
+                            {dataProviders.map((provider) => (
+                                <TabsTrigger
+                                    key={provider.data.items.root.data.title}
+                                    value={provider.data.items.root.data.title}
+                                >
+                                    {provider.data.items.root.data.title}
+                                </TabsTrigger>
+                            ))}
+                            <TabsTrigger value="more-info">
+                                More Info
+                            </TabsTrigger>
+                            <TabsTrigger value="create-new">
+                                <Plus className="size-5" />
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
+                    <TabsContent
+                        value={dataProviders[0].data.items.root.data.title}
+                        className="h-full"
+                    >
+                        <div className="mx-auto p-4 flex flex-col lg:flex-row gap-10 lg:divide-x-2">
+                            <div className="flex items-center justify-center min-h-48 max-h-72 overflow-hidden w-full bg-muted rounded-lg">
+                                <img
+                                    src={output?.data.image}
+                                    alt=""
+                                    className="w-full h-full object-fill"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16 overflow-hidden">
+                                <div className="flex flex-row gap-2 justify-between items-center">
+                                    <div className="flex flex-col gap-1 items-start">
+                                        <h1 className="text-xl font-semibold tracking-tight">
+                                            {output?.data.title}
+                                        </h1>
+                                        <p className="text-sm text-muted-foreground">
+                                            Hold <kbd>Ctrl</kbd> to delete items
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={handleAddItem}
+                                        size="icon"
+                                        variant="secondary"
+                                        className="ml-auto"
+                                    >
+                                        <Plus className="size-5" />
+                                        <span className="sr-only">
+                                            Add item
+                                        </span>
+                                    </Button>
+                                </div>
+                                <TreeComponent provider={dataProviders[0]} />
+                            </div>
+                        </div>
+                    </TabsContent>
+                    {dataProviders.slice(1).map((provider) => (
+                        <TabsContent
+                            value={provider.data.items.root.data.title}
+                            className="h-full"
+                            key={provider.data.items.root.data.title}
+                        >
+                            <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
+                                <div className="flex flex-row gap-2 justify-between items-center">
+                                    <div className="flex flex-col gap-1 items-start">
+                                        {/* <h1 className="text-xl font-semibold tracking-tight">
+                                {output?.data.title}
+                            </h1> */}
+                                        <p className="text-sm text-muted-foreground">
+                                            Hold <kbd>Ctrl</kbd> to delete items
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={handleAddItem}
+                                        size="icon"
+                                        variant="secondary"
+                                        className="ml-auto"
+                                    >
+                                        <Plus className="size-5" />
+                                        <span className="sr-only">
+                                            Add item
+                                        </span>
+                                    </Button>
+                                </div>
+                                <TreeComponent provider={provider} />
+                            </div>
+                        </TabsContent>
+                    ))}
+                    <TabsContent value="more-info" className="py-4 h-full">
+                        <div className="text-pretty mt-5 mx-auto prose dark:prose-invert">
+                            {(output?.data.tags.length ?? 0) > 0 && (
+                                <div className="space-x-2 mb-4">
+                                    {output?.data.tags.map((tag) => (
+                                        <Badge
+                                            key={tag}
+                                            variant="secondary"
+                                            className="capitalize"
+                                        >
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                            <h1>{output?.data.title}</h1>
+                            <div
+                                /* biome-ignore lint/security/noDangerouslySetInnerHtml: No */
+                                dangerouslySetInnerHTML={{
+                                    /* biome-ignore lint/style/useNamingConvention: No */
+                                    __html: output?.data.content ?? "",
+                                }}
                             />
                         </div>
-                        <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16 overflow-hidden">
-                            <div className="flex flex-row gap-2 justify-between items-center">
-                                <div className="flex flex-col gap-1 items-start">
-                                    <h1 className="text-xl font-semibold tracking-tight">
-                                        {output?.data.title}
-                                    </h1>
-                                    <p className="text-sm text-muted-foreground">
-                                        Hold <kbd>Ctrl</kbd> to delete items
-                                    </p>
-                                </div>
-                                <Button
-                                    onClick={handleAddItem}
-                                    size="icon"
-                                    variant="secondary"
-                                    className="ml-auto"
-                                >
-                                    <Plus className="size-5" />
-                                    <span className="sr-only">Add item</span>
-                                </Button>
-                            </div>
-                            <TreeComponent provider={dataProvider} />
-                        </div>
-                    </div>
-                </TabsContent>
-                <TabsContent value="author" className="h-full">
-                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
-                        <div className="flex flex-row gap-2 justify-between items-center">
-                            <div className="flex flex-col gap-1 items-start">
-                                {/* <h1 className="text-xl font-semibold tracking-tight">
-                                    {output?.data.title}
-                                </h1> */}
-                                <p className="text-sm text-muted-foreground">
-                                    Hold <kbd>Ctrl</kbd> to delete items
-                                </p>
-                            </div>
-                            <Button
-                                onClick={handleAddItem}
-                                size="icon"
-                                variant="secondary"
-                                className="ml-auto"
-                            >
-                                <Plus className="size-5" />
-                                <span className="sr-only">Add item</span>
-                            </Button>
-                        </div>
-                        <TreeComponent provider={authorDataProvider} />
-                    </div>
-                </TabsContent>
-                <TabsContent value="misc" className="h-full">
-                    <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
-                        <div className="flex flex-row gap-2 justify-between items-center">
-                            <div className="flex flex-col gap-1 items-start">
-                                {/* <h1 className="text-xl font-semibold tracking-tight">
-                                    {output?.data.title}
-                                </h1> */}
-                                <p className="text-sm text-muted-foreground">
-                                    Hold <kbd>Ctrl</kbd> to delete items
-                                </p>
-                            </div>
-                            <Button
-                                onClick={handleAddItem}
-                                size="icon"
-                                variant="secondary"
-                                className="ml-auto"
-                            >
-                                <Plus className="size-5" />
-                                <span className="sr-only">Add item</span>
-                            </Button>
-                        </div>
-                        <TreeComponent provider={miscDataProvider} />
-                    </div>
-                </TabsContent>
-                <TabsContent value="more-info" className="py-4 h-full">
-                    <div className="text-pretty mt-5 mx-auto prose dark:prose-invert">
-                        {output?.data.tags.length > 0 && (
-                            <div className="space-x-2 mb-4">
-                                {output?.data.tags.map((tag) => (
-                                    <Badge
-                                        key={tag}
-                                        variant="secondary"
-                                        className="capitalize"
-                                    >
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                        <h1>{output?.data.title}</h1>
-                        <div
-                            /* biome-ignore lint/security/noDangerouslySetInnerHtml: No */
-                            dangerouslySetInnerHTML={{
-                                /* biome-ignore lint/style/useNamingConvention: No */
-                                __html: output?.data.content,
-                            }}
-                        />
-                    </div>
-                </TabsContent>
-            </Tabs>
+                    </TabsContent>
+                    <TabsContent value="create-new" className="h-full">
+                        {/* Text field to ask for name of new category */}
+                        <Card className="max-w-lg w-full mx-auto my-10">
+                            <CardHeader>
+                                <CardTitle>Create new tree</CardTitle>
+                                <CardDescription>
+                                    Just give it a name and you're good to go!
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <UseItemForm
+                                    onSubmit={({ title }) => {
+                                        setDataProviders([
+                                            ...dataProviders,
+                                            initializeDataProvider(
+                                                {
+                                                    root: {
+                                                        index: "root",
+                                                        isFolder: true,
+                                                        children: [],
+                                                        data: {
+                                                            title,
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    onEditItem,
+                                                },
+                                            ),
+                                        ]);
+                                    }}
+                                />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+            )}
         </div>
     );
 };
