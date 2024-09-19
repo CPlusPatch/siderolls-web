@@ -14,8 +14,8 @@ import {
 import { Image, MoreHorizontal } from "lucide-react";
 import { type FC, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import type { CustomTreeDataProvider } from "./DataProvider";
-import type { Item } from "./Tree";
+import type { CustomTreeDataProvider } from "./DataProvider.tsx";
+import type { Item } from "./Tree.tsx";
 
 const Sidebar: FC<{
     item: Item;

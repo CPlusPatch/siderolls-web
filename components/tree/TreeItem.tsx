@@ -7,10 +7,10 @@ import type {
     TreeInformation,
     TreeItemRenderContext,
 } from "react-complex-tree";
-import { Card, CardTitle } from "../ui/card";
-import type { CustomTreeDataProvider } from "./DataProvider";
-import Sidebar from "./Sidebar";
-import type { Item } from "./Tree";
+import { Card, CardTitle } from "../ui/card.tsx";
+import type { CustomTreeDataProvider } from "./DataProvider.tsx";
+import Sidebar from "./Sidebar.tsx";
+import type { Item } from "./Tree.tsx";
 
 const byteValueNumberFormatter = Intl.NumberFormat("en", {
     notation: "compact",

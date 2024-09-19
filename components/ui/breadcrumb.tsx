@@ -71,6 +71,7 @@ const BreadcrumbPage = forwardRef<
         role="link"
         aria-disabled="true"
         aria-current="page"
+        tabIndex={0}
         className={cn("font-normal text-foreground", className)}
         {...props}
     />
@@ -83,6 +84,7 @@ const BreadcrumbSeparator = ({
     ...props
 }: ComponentProps<"li">) => (
     <li
+        // biome-ignore lint/a11y/useSemanticElements: <explanation>
         role="presentation"
         aria-hidden="true"
         className={cn("[&>svg]:size-3.5", className)}
@@ -98,6 +100,7 @@ const BreadcrumbEllipsis = ({
     ...props
 }: ComponentProps<"span">) => (
     <span
+        // biome-ignore lint/a11y/useSemanticElements: <explanation>
         role="presentation"
         aria-hidden="true"
         className={cn("flex h-9 w-9 items-center justify-center", className)}

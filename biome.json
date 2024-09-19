@@ -1,5 +1,5 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+    "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
     "organizeImports": {
         "enabled": true
     },
@@ -12,6 +12,10 @@
             },
             "complexity": {
                 "noExcessiveCognitiveComplexity": "off"
+            },
+            "suspicious": {
+                "noReactSpecificProps": "off",
+                "noConsole": "off"
             },
             "style": {
                 "noDefaultExport": "off",
@@ -66,14 +70,7 @@
                 }
             },
             "nursery": {
-                "noDuplicateElseIf": "warn",
-                "noDuplicateJsonKeys": "warn",
-                "noEvolvingTypes": "warn",
-                "noYodaExpression": "warn",
-                "useConsistentBuiltinInstantiation": "warn",
-                "useErrorMessage": "warn",
-                "useImportExtensions": "off",
-                "useThrowNewError": "warn"
+                "noDuplicateElseIf": "warn"
             }
         }
     },

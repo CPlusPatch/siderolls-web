@@ -2,7 +2,7 @@
 
 import { env } from "next-runtime-env";
 import { useEffect, useState } from "react";
-import { BaseClient, type Output } from "./client";
+import { BaseClient, type Output } from "./client.ts";
 
 export interface DataRow {
     id: number;

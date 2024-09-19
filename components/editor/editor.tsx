@@ -14,8 +14,8 @@ import {
     useSlate,
     withReact,
 } from "slate-react";
-import { Toggle } from "../ui/toggle";
-import { ToggleGroup } from "../ui/toggle-group";
+import { ToggleGroup } from "../ui/toggle-group.tsx";
+import { Toggle } from "../ui/toggle.tsx";
 
 const serializeToHtml = (node: Descendant): string => {
     if (Text.isText(node)) {

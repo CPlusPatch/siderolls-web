@@ -5,10 +5,10 @@ import {
     Tree,
     UncontrolledTreeEnvironment,
 } from "react-complex-tree";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import type { CustomTreeDataProvider } from "./DataProvider";
-import TreeItem from "./TreeItem";
+import { Button } from "../ui/button.tsx";
+import { Input } from "../ui/input.tsx";
+import type { CustomTreeDataProvider } from "./DataProvider.tsx";
+import TreeItem from "./TreeItem.tsx";
 
 export type Item = ComplexTreeItem<{
     title: string;

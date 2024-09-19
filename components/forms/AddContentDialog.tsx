@@ -23,8 +23,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { RichTextEditor } from "../editor/editor";
-import { useMitt } from "../events/useMitt";
+import { RichTextEditor } from "../editor/editor.tsx";
+import { useMitt } from "../events/useMitt.tsx";
 
 const formSchema = z.object({
     title: z.string().min(1),

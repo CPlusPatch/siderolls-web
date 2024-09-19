@@ -6,8 +6,8 @@ import type {
     TreeItem,
     TreeItemIndex,
 } from "react-complex-tree";
-import { EventEmitter } from "./EventEmitter";
-import type { Item, Items } from "./Tree";
+import { EventEmitter } from "./EventEmitter.ts";
+import type { Item, Items } from "./Tree.tsx";
 
 export const initializeDataProvider = (
     items: Items,
