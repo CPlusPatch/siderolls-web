@@ -304,7 +304,7 @@ const FeedMain: FC<{
                         className="h-full"
                     >
                         <div className="mx-auto p-4 flex flex-col lg:flex-row gap-10 lg:divide-x-2">
-                            <div className="flex items-center justify-center min-h-48 max-h-72 overflow-hidden w-full bg-muted rounded-lg">
+                            <div className="flex items-center justify-center min-h-48 overflow-hidden w-full bg-muted rounded-lg">
                                 <img
                                     src={output?.data.image}
                                     alt=""
