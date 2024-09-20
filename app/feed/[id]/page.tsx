@@ -1,6 +1,8 @@
 "use client";
+import { RichTextEditor } from "@/components/editor/editor";
 import { initializeDataProvider } from "@/components/tree/DataProvider";
 import TreeComponent, { type Items } from "@/components/tree/Tree";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type DataRow, useClient } from "@/lib/api";
 import type { Output } from "@/lib/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Plus, Save, TriangleAlert } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -84,6 +86,7 @@ const FeedMain: FC<{
     const [output, setOutput] = useState<Output<DataRow> | undefined>(
         undefined,
     );
+    const [content, setContent] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         const fetchRow = async () => {
@@ -105,6 +108,7 @@ const FeedMain: FC<{
                         : data,
                 ).map((items) => initializeDataProvider(items, { onEditItem })),
             );
+            setContent(response?.data.content);
         };
 
         fetchRow();
@@ -238,6 +242,7 @@ const FeedMain: FC<{
                         provider.data.items,
                     ]),
                 ),
+                content,
             });
             return prevDataProviders;
         });
@@ -266,7 +271,31 @@ const FeedMain: FC<{
     };
 
     return (
-        <div className="max-w-2xl mx-auto w-full h-full p-2 md:p-4">
+        <div className="max-w-2xl mx-auto flex flex-col gap-4 w-full h-full p-2 md:p-4">
+            {/* {content && <RichTextEditor initialValue={content} />} */}
+            <div className="text-pretty mt-5 prose dark:prose-invert">
+                {(output?.data.tags.length ?? 0) > 0 && (
+                    <div className="space-x-2 mb-4">
+                        {output?.data.tags.map((tag) => (
+                            <Badge
+                                key={tag}
+                                variant="secondary"
+                                className="capitalize"
+                            >
+                                {tag}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
+                <h1>{output?.data.title}</h1>
+                <div
+                    /* biome-ignore lint/security/noDangerouslySetInnerHtml: No */
+                    dangerouslySetInnerHTML={{
+                        /* biome-ignore lint/style/useNamingConvention: No */
+                        __html: content ?? "",
+                    }}
+                />
+            </div>
             {dataProviders[0] && (
                 <Tabs
                     onValueChange={(value) => {
@@ -299,44 +328,6 @@ const FeedMain: FC<{
                             </TabsTrigger>
                         </TabsList>
                     </div>
-                    {/* <TabsContent
-                        value={dataProviders[0].data.items.root.data.title}
-                        className="h-full"
-                    >
-                        <div className="mx-auto p-4 flex flex-col lg:flex-row gap-10 lg:divide-x-2">
-                            <div className="flex items-start justify-center min-h-48 overflow-hidden w-full">
-                                <img
-                                    src={output?.data.image}
-                                    alt=""
-                                    className="w-full rounded-lg"
-                                />
-                            </div>
-                            <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16 overflow-hidden">
-                                <div className="flex flex-row gap-2 justify-between items-center">
-                                    <div className="flex flex-col gap-1 items-start">
-                                        <h1 className="text-xl font-semibold tracking-tight">
-                                            {output?.data.title}
-                                        </h1>
-                                        <p className="text-sm text-muted-foreground">
-                                            Hold <kbd>Ctrl</kbd> to delete items
-                                        </p>
-                                    </div>
-                                    <Button
-                                        onClick={handleAddItem}
-                                        size="icon"
-                                        variant="secondary"
-                                        className="ml-auto"
-                                    >
-                                        <Plus className="size-5" />
-                                        <span className="sr-only">
-                                            Add item
-                                        </span>
-                                    </Button>
-                                </div>
-                                <TreeComponent provider={dataProviders[0]} />
-                            </div>
-                        </div>
-                    </TabsContent> */}
                     {dataProviders.map((provider) => (
                         <TabsContent
                             value={provider.data.items.root.data.title}
@@ -346,9 +337,9 @@ const FeedMain: FC<{
                             <div className="max-w-2xl mx-auto w-full flex flex-col gap-10">
                                 <div className="flex flex-row gap-2 justify-between items-center">
                                     <div className="flex flex-col gap-1 items-start">
-                                        <h1 className="text-xl font-semibold tracking-tight">
+                                        {/*  <h1 className="text-xl font-semibold tracking-tight">
                                             {output?.data.title}
-                                        </h1>
+                                        </h1> */}
                                         <p className="text-sm text-muted-foreground">
                                             Hold <kbd>Ctrl</kbd> to delete items
                                         </p>
@@ -370,7 +361,17 @@ const FeedMain: FC<{
                         </TabsContent>
                     ))}
                     <TabsContent value="more-info" className="py-4 h-full">
-                        <div className="text-pretty mt-5 mx-auto prose dark:prose-invert">
+                        <div className="text-pretty flex flex-col gap-4 mx-auto prose dark:prose-invert">
+                            <div className="w-full flex flex-row">
+                                <Button
+                                    onClick={onEditItem}
+                                    className="ml-auto"
+                                    size="icon"
+                                    variant="secondary"
+                                >
+                                    <Save className="size-4" />
+                                </Button>
+                            </div>
                             {(output?.data.tags.length ?? 0) > 0 && (
                                 <div className="space-x-2 mb-4">
                                     {output?.data.tags.map((tag) => (
@@ -384,13 +385,18 @@ const FeedMain: FC<{
                                     ))}
                                 </div>
                             )}
-                            <h1>{output?.data.title}</h1>
-                            <div
-                                /* biome-ignore lint/security/noDangerouslySetInnerHtml: No */
-                                dangerouslySetInnerHTML={{
-                                    /* biome-ignore lint/style/useNamingConvention: No */
-                                    __html: output?.data.content ?? "",
-                                }}
+                            <Alert variant="destructive">
+                                <TriangleAlert className="h-4 w-4" />
+                                <AlertTitle>Warning</AlertTitle>
+                                <AlertDescription>
+                                    This editor is unstable and prone to
+                                    crashes. Please reload the page if this
+                                    happens.
+                                </AlertDescription>
+                            </Alert>
+                            <RichTextEditor
+                                initialValue={content}
+                                onEdit={(v) => setContent(v)}
                             />
                         </div>
                     </TabsContent>

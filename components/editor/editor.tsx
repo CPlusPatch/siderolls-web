@@ -1,7 +1,7 @@
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
 import { escapeHTML } from "@wordpress/escape-html";
 import isHotkey from "is-hotkey";
-import { type FC, useCallback, useMemo } from "react";
+import { type FC, memo, useCallback, useMemo } from "react";
 import { type BaseEditor, Element as SlateElement } from "slate";
 import { type Descendant, Editor, Text, Transforms, createEditor } from "slate";
 import { type HistoryEditor, withHistory } from "slate-history";
@@ -35,11 +35,14 @@ const serializeToHtml = (node: Descendant): string => {
         return string;
     }
 
-    const children = node.children.map((n) => serializeToHtml(n)).join("");
+    const children =
+        node.type === BlockType.Image
+            ? []
+            : node.children.map((n) => serializeToHtml(n)).join("");
 
     switch (node.type) {
         case BlockType.BlockQuote:
-            return `<blockquote><p>${children}</p></blockquote>`;
+            return `<blockquote>${children}</blockquote>`;
         case BlockType.Paragraph:
             return `<p>${children}</p>`;
         case BlockType.Link:
@@ -57,18 +60,190 @@ const serializeToHtml = (node: Descendant): string => {
         case BlockType.CodeLine:
             return `<code>${children}</code>`;
         case BlockType.QuoteLine:
-            return `<blockquote>${children}</blockquote>`;
+            return `<p>${children}</p>`;
         case BlockType.Emoticon:
             return `<span>${children}</span>`;
+        case BlockType.Image:
+            return `<img src="${escapeHTML(node.url)}" alt="${escapeHTML(
+                node.alt,
+            )}" />${children}`;
         default:
-            return children;
+            return "";
     }
+};
+
+const htmlNodeToSlate = (node: Node): Descendant => {
+    if (node.nodeType === Node.TEXT_NODE) {
+        return {
+            text: node.nodeValue ?? "",
+        };
+    }
+
+    switch (node.nodeName) {
+        case "P": {
+            if (node.childNodes.length > 0) {
+                return {
+                    type: BlockType.Paragraph,
+                    children: Array.from(node.childNodes)
+                        .map((node) =>
+                            node.nodeType === Node.TEXT_NODE
+                                ? { text: node.nodeValue ?? "" }
+                                : undefined,
+                        )
+                        .filter(Boolean) as CustomText[],
+                };
+            }
+
+            return {
+                type: BlockType.Paragraph,
+                children: [{ text: "" }],
+            };
+        }
+        case "BLOCKQUOTE":
+            return {
+                type: BlockType.BlockQuote,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeName === "P"
+                            ? htmlNodeToSlate(node)
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "UL":
+            return {
+                type: BlockType.UnorderedList,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeName === "LI"
+                            ? htmlNodeToSlate(node)
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomListItem[],
+            };
+        case "OL":
+            return {
+                type: BlockType.OrderedList,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeName === "LI"
+                            ? htmlNodeToSlate(node)
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomListItem[],
+            };
+        case "LI":
+            return {
+                type: BlockType.ListItem,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeType === Node.TEXT_NODE
+                            ? { text: node.nodeValue ?? "" }
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "H1":
+            return {
+                type: BlockType.Heading,
+                level: 1,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeType === Node.TEXT_NODE
+                            ? { text: node.nodeValue ?? "" }
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "H2":
+            return {
+                type: BlockType.Heading,
+                level: 2,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeType === Node.TEXT_NODE
+                            ? { text: node.nodeValue ?? "" }
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "H3":
+            return {
+                type: BlockType.Heading,
+                level: 3,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeType === Node.TEXT_NODE
+                            ? { text: node.nodeValue ?? "" }
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "A":
+            return {
+                type: BlockType.Link,
+                url: (node as HTMLAnchorElement).href,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeType === Node.TEXT_NODE
+                            ? { text: node.nodeValue ?? "" }
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "PRE":
+            return {
+                type: BlockType.CodeBlock,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeName === "CODE"
+                            ? htmlNodeToSlate(node)
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "CODE":
+            return {
+                type: BlockType.CodeLine,
+                children: Array.from(node.childNodes)
+                    .map((node) =>
+                        node.nodeType === Node.TEXT_NODE
+                            ? { text: node.nodeValue ?? "" }
+                            : undefined,
+                    )
+                    .filter(Boolean) as CustomText[],
+            };
+        case "IMG":
+            return {
+                type: BlockType.Image,
+                url: (node as HTMLImageElement).src,
+                alt: (node as HTMLImageElement).alt,
+            };
+        default:
+            return {
+                text: "",
+            };
+    }
+};
+
+const htmlToSlate = (html: string): Descendant[] => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const body = doc.body;
+    const children: Descendant[] = [];
+    if (body) {
+        for (const node of body.childNodes) {
+            children.push(htmlNodeToSlate(node));
+        }
+    }
+    return children;
 };
 
 export const RichTextEditor: FC<{
     onEdit?: (value: string) => void;
+    initialValue?: string;
     disabled?: boolean;
-}> = ({ onEdit, disabled }) => {
+}> = memo(({ onEdit, disabled, initialValue }) => {
     const renderElement = useCallback(
         (props: RenderElementProps) => <Element {...props} />,
         [],
@@ -82,7 +257,9 @@ export const RichTextEditor: FC<{
     return (
         <Slate
             editor={editor}
-            initialValue={initialValue}
+            initialValue={
+                initialValue ? htmlToSlate(initialValue) : defaultInitialValue
+            }
             onChange={(value) => {
                 onEdit?.(value.map(serializeToHtml).join(""));
             }}
@@ -117,6 +294,7 @@ export const RichTextEditor: FC<{
                         format={BlockType.Link}
                         icon="mdi-link-variant"
                     />
+                    <BlockButton format={BlockType.Image} icon="mdi-image" />
                     <MarkButton format={MarkType.Bold} icon="mdi-format-bold" />
                     <MarkButton
                         format={MarkType.Italic}
@@ -154,9 +332,9 @@ export const RichTextEditor: FC<{
             </div>
         </Slate>
     );
-};
+});
 
-const BlockButton: FC<{
+export const BlockButton: FC<{
     format: BlockType;
     icon: string;
 }> = ({ format, icon }) => {
@@ -175,7 +353,7 @@ const BlockButton: FC<{
     );
 };
 
-const MarkButton: FC<{
+export const MarkButton: FC<{
     format: MarkType;
     icon: string;
 }> = ({ format, icon }) => {
@@ -273,6 +451,25 @@ const toggleBlock = (
             });
             break;
         }
+        case BlockType.Image: {
+            const url = window.prompt("Enter the URL of the image:");
+            if (!url) {
+                return;
+            }
+
+            /* const alt = window.prompt("Enter the alt text of the image:");
+            if (!alt) {
+                return;
+            } */
+
+            Transforms.insertNodes(editor, {
+                type: format,
+                url,
+                alt: "",
+            });
+
+            break;
+        }
         default:
             Transforms.setNodes(editor, {
                 type: format,
@@ -343,6 +540,22 @@ const Element: FC<RenderElementProps> = ({ attributes, children, element }) => {
                     {children}
                 </p>
             );
+        case BlockType.QuoteLine:
+            return (
+                <p style={style} {...attributes}>
+                    {children}
+                </p>
+            );
+        case BlockType.Image:
+            return (
+                // biome-ignore lint/a11y/useAltText: there is literally alt text
+                <img
+                    style={style}
+                    src={element.url}
+                    alt={element.alt}
+                    {...attributes}
+                />
+            );
         case BlockType.Link:
             return (
                 <a
@@ -405,6 +618,7 @@ export enum BlockType {
     UnorderedList = "unordered-list",
     Emoticon = "emoticon",
     Link = "link",
+    Image = "image",
 }
 
 const HOTKEYS = {
@@ -479,6 +693,11 @@ type CustomEmoticon = CustomBaseElement & {
     type: BlockType.Emoticon;
     children: CustomText[];
 };
+type CustomImage = CustomBaseElement & {
+    type: BlockType.Image;
+    url: string;
+    alt: string;
+};
 type CustomElement =
     | CustomParagraph
     | CustomBlockQuote
@@ -490,7 +709,8 @@ type CustomElement =
     | CustomQuoteLine
     | CustomCodeBlock
     | CustomCodeLine
-    | CustomEmoticon;
+    | CustomEmoticon
+    | CustomImage;
 
 declare module "slate" {
     interface CustomTypes {
@@ -500,7 +720,7 @@ declare module "slate" {
     }
 }
 
-const initialValue: Descendant[] = [
+const defaultInitialValue: Descendant[] = [
     // Single text node
     {
         type: BlockType.Paragraph,
