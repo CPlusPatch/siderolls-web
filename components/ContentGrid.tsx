@@ -35,7 +35,7 @@ export const ContentGridItem: FC<{ item: DataRow } & ContentItemActions> = ({
                                 className="w-full"
                             />
                         ) : (
-                            <Folder className="size-16 text-accent-foreground" />
+                            <Folder className="size-16 my-8 text-accent-foreground" />
                         )}
                     </div>
 

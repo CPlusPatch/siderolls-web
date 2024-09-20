@@ -266,7 +266,7 @@ const FeedMain: FC<{
     };
 
     return (
-        <div className="max-w-6xl mx-auto w-full h-full p-4">
+        <div className="max-w-2xl mx-auto w-full h-full p-2 md:p-4">
             {dataProviders[0] && (
                 <Tabs
                     onValueChange={(value) => {
@@ -282,7 +282,7 @@ const FeedMain: FC<{
                     className="flex flex-col gap-4 grow h-full"
                 >
                     <div className="flex items-center">
-                        <TabsList>
+                        <TabsList className="max-w-full overflow-y-auto justify-start">
                             {dataProviders.map((provider) => (
                                 <TabsTrigger
                                     key={provider.data.items.root.data.title}
@@ -299,16 +299,16 @@ const FeedMain: FC<{
                             </TabsTrigger>
                         </TabsList>
                     </div>
-                    <TabsContent
+                    {/* <TabsContent
                         value={dataProviders[0].data.items.root.data.title}
                         className="h-full"
                     >
                         <div className="mx-auto p-4 flex flex-col lg:flex-row gap-10 lg:divide-x-2">
-                            <div className="flex items-center justify-center min-h-48 overflow-hidden w-full bg-muted rounded-lg">
+                            <div className="flex items-start justify-center min-h-48 overflow-hidden w-full">
                                 <img
                                     src={output?.data.image}
                                     alt=""
-                                    className="w-full h-full object-fill"
+                                    className="w-full rounded-lg"
                                 />
                             </div>
                             <div className="flex flex-col gap-10 lg:w-2/3 lg:pl-16 overflow-hidden">
@@ -336,19 +336,19 @@ const FeedMain: FC<{
                                 <TreeComponent provider={dataProviders[0]} />
                             </div>
                         </div>
-                    </TabsContent>
-                    {dataProviders.slice(1).map((provider) => (
+                    </TabsContent> */}
+                    {dataProviders.map((provider) => (
                         <TabsContent
                             value={provider.data.items.root.data.title}
                             className="h-full"
                             key={provider.data.items.root.data.title}
                         >
-                            <div className="max-w-2xl mx-auto p-4 flex flex-col gap-10">
+                            <div className="max-w-2xl mx-auto w-full flex flex-col gap-10">
                                 <div className="flex flex-row gap-2 justify-between items-center">
                                     <div className="flex flex-col gap-1 items-start">
-                                        {/* <h1 className="text-xl font-semibold tracking-tight">
-                                {output?.data.title}
-                            </h1> */}
+                                        <h1 className="text-xl font-semibold tracking-tight">
+                                            {output?.data.title}
+                                        </h1>
                                         <p className="text-sm text-muted-foreground">
                                             Hold <kbd>Ctrl</kbd> to delete items
                                         </p>
