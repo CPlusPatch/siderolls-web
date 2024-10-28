@@ -50,7 +50,7 @@
         "react-parallax-tilt": "^1.7.239",
         "react-timeago-i18n": "^2.2.1",
         "slate": "^0.103.0",
-        "slate-history": "^0.109.0",
+        "slate-history": "^0.110.3",
         "slate-react": "^0.110.1",
         "swr": "^2.2.5",
         "tailwind-merge": "^2.5.2",
